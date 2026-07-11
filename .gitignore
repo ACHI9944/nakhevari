@@ -5,6 +5,3 @@ dist/
 .DS_Store
 .env
 .env.*
-
-# Local-only AI agent guides; not published to the public repo.
-.agents/

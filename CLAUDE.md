@@ -23,9 +23,11 @@ Backend:
 - Public callable functions are exported from `functions/index.js`; the file path does not define the public function name.
 - Current callable functions: `moderateListing`, `backfillListingSearchFields`, `listAdmins`, `setAdminAccess`, `listProfiles`, `updateCompanyVerification`.
 - Firestore collections in active use: `users`, `listings`, `listingModerationEvents`, `adminAccessEvents`, `companyVerificationEvents`.
-- Listing statuses: `pending`, `published`, `rejected`, `draft`.
+- Listing statuses: `pending`, `published`, `rejected`, `draft`. Listings are always created as `pending`; `moderateListing` only transitions `pending` → `published`/`rejected`. Nothing currently sets a listing to `draft` — it exists in `firestore.rules`/`storage.rules` and the admin dashboard's filters/counts/badges as a reserved future state, so an always-zero `draft` count is expected, not a bug.
 - Company verification statuses: `pending`, `verified`, `rejected`, `not_required`.
+- User profile statuses: `profileStatus` is `active` or `suspended`. The `users/{userId}` Firestore update rule requires `resource.data.profileStatus == 'active'`, so a suspended profile is permanently locked out of self-service profile edits by design (see the `firebase-security` skill). No code currently sets `profileStatus` to `suspended` — there is no admin "suspend user" callable yet, only the rule-level gate and the translated label. Treat this as a half-built feature, not a bug, unless asked to build the missing admin action.
 - Admin access is represented with a Firebase Auth custom claim: `admin: true`.
+- Admin-facing Firestore queries must stay capped with `limit()` — see `adminListingsFetchCap` in `src/services/listings/listingService.js`. An earlier unbounded admin query was a real performance regression; don't reintroduce the pattern elsewhere.
 - Firebase rules live in `firestore.rules` and `storage.rules`.
 - Firebase Hosting serves `dist/`; do not edit `dist/` directly.
 
@@ -56,18 +58,16 @@ Backend:
 - Cloud Functions: `functions/`
 - Functions shared helpers: `functions/lib/`
 
-## Specialized Agent Guides
-Codex automatically loads this `AGENTS.md` file. The files in `.agents/` are specialist guides and should be read only when they match the task.
+## Specialist Skills
+This file loads automatically on every session. The skills below are specialist deep-dives that load on demand — invoke (or let Claude auto-invoke) the smallest relevant set for the task; don't pull in every skill by default.
 
-- Frontend/UI implementation: `.agents/frontend.md`
-- Firebase Cloud Functions/backend work: `.agents/backend-functions.md`
-- Auth, admin access, permissions, and sensitive data: `.agents/firebase-security.md`
-- Code review, regression risk, and verification: `.agents/qa-reviewer.md`
-- Product UX, listing flows, forms, and admin dashboard polish: `.agents/product-ui.md`
-- Georgian/English copy, translations, and user-facing text: `.agents/i18n-content.md`
-- Automated tests (Vitest unit tests, Firestore rules emulator tests): `.agents/testing.md`
-
-Use the smallest relevant set of specialist guides for the task. Do not load every specialist guide by default.
+- Frontend/UI implementation: `frontend` skill
+- Firebase Cloud Functions/backend work: `backend-functions` skill
+- Auth, admin access, permissions, and sensitive data: `firebase-security` skill
+- Code review, regression risk, and verification: `qa-reviewer` skill
+- Product UX, listing flows, forms, and admin dashboard polish: `product-ui` skill
+- Georgian/English copy, translations, and user-facing text: `i18n-content` skill
+- Automated tests (Vitest unit tests, Firestore rules emulator tests): `testing` skill
 
 ## Commands
 Use these commands when relevant:
@@ -87,7 +87,7 @@ Use these commands when relevant:
 - Run unit tests (`src/utils/`):
   `npm run test`
 
-- Run Firestore rules tests against the emulator (needs Java 21+, see `.agents/testing.md`):
+- Run Firestore rules tests against the emulator (needs Java 21+, see the `testing` skill):
   `npm run test:rules`
 
 There are currently no explicit backend test scripts in `functions/package.json`.
@@ -98,7 +98,7 @@ There are currently no explicit backend test scripts in `functions/package.json`
 - Change to `src/utils/` or `src/services/` logic: run `npm run test`, and add/update a test in `tests/utils/` when practical.
 - Firebase rules/security change: inspect `firestore.rules`, `storage.rules`, and the matching client/backend access path, and run `npm run test:rules`.
 - Callable function contract change: inspect the frontend wrapper in `src/services/` and the export in `functions/index.js`.
-- Admin, profile, moderation, or company verification change: read the relevant specialist guide from `.agents/` before editing.
+- Admin, profile, moderation, or company verification change: use the relevant specialist skill before editing.
 
 ## Frontend Rules
 - Use existing screen/component folder conventions.
