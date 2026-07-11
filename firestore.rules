@@ -1,0 +1,314 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    function userProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function canUseSellerType(sellerType) {
+      return (
+        sellerType == 'individual'
+        && userProfile().accountType == 'individual'
+      ) || (
+        sellerType == 'company'
+        && userProfile().accountType == 'company'
+        && userProfile().companyVerificationStatus == 'verified'
+      );
+    }
+
+    function validOptionalString(data, field, maxLength) {
+      return !(field in data)
+        || (data[field] is string && data[field].size() <= maxLength);
+    }
+
+    match /users/{userId} {
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role == 'user'
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.emailVerified == request.auth.token.email_verified
+        && request.resource.data.phoneVerified == false
+        && request.resource.data.profileStatus == 'active'
+        && request.resource.data.profileCompleted is bool
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 254
+        && (
+          !('phone' in request.resource.data)
+          || (request.resource.data.phone is string && request.resource.data.phone.size() <= 30)
+        )
+        && (
+          !('accountType' in request.resource.data)
+          || request.resource.data.accountType in ['individual', 'company', '']
+        )
+        && (
+          !('companyVerificationStatus' in request.resource.data)
+          || request.resource.data.companyVerificationStatus in ['pending', 'not_required']
+        )
+        && request.resource.data.keys().hasAll([
+          'name', 'email', 'emailVerified', 'phoneVerified',
+          'role', 'profileStatus', 'profileCompleted', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'firstName', 'lastName', 'name', 'email', 'emailVerified',
+          'phone', 'phoneVerified', 'gender', 'birthDate', 'accountType',
+          'companyName', 'identificationNumber', 'companyVerificationStatus',
+          'profileStatus', 'role', 'profileCompleted', 'photoURL',
+          'lastLoginAt', 'createdAt'
+        ]);
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow update: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.emailVerified == resource.data.emailVerified
+        && request.resource.data.phoneVerified == resource.data.phoneVerified
+        && request.resource.data.profileStatus == resource.data.profileStatus
+        && resource.data.profileStatus == 'active'
+        && request.resource.data.keys().hasOnly([
+          'firstName', 'lastName', 'name', 'email', 'emailVerified',
+          'phone', 'phoneVerified', 'gender', 'birthDate', 'accountType',
+          'companyName', 'identificationNumber', 'companyVerificationStatus',
+          'profileStatus', 'role', 'profileCompleted', 'photoURL',
+          'lastLoginAt', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.profileCompleted is bool
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.accountType in ['individual', 'company', '']
+        && request.resource.data.companyVerificationStatus in ['pending', 'verified', 'rejected', 'not_required']
+        && validOptionalString(request.resource.data, 'firstName', 60)
+        && validOptionalString(request.resource.data, 'lastName', 60)
+        && validOptionalString(request.resource.data, 'phone', 30)
+        && validOptionalString(request.resource.data, 'gender', 30)
+        && validOptionalString(request.resource.data, 'birthDate', 30)
+        && validOptionalString(request.resource.data, 'companyName', 160)
+        && validOptionalString(request.resource.data, 'identificationNumber', 60)
+        && validOptionalString(request.resource.data, 'photoURL', 2048)
+        && (
+          (
+            request.resource.data.accountType == 'company'
+            && request.resource.data.companyVerificationStatus in ['pending', 'verified', 'rejected']
+          )
+          || (
+            request.resource.data.accountType in ['individual', '']
+            && request.resource.data.companyVerificationStatus == 'not_required'
+          )
+        )
+        && (
+          request.resource.data.companyVerificationStatus == resource.data.companyVerificationStatus
+          || (
+            request.resource.data.accountType == 'company'
+            && request.resource.data.companyVerificationStatus == 'pending'
+          )
+          || (
+            request.resource.data.accountType == 'individual'
+            && request.resource.data.companyVerificationStatus == 'not_required'
+          )
+        )
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'firstName', 'lastName', 'name', 'phone',
+          'gender', 'birthDate', 'accountType', 'photoURL', 'lastLoginAt',
+          'companyName', 'identificationNumber',
+          'companyVerificationStatus', 'profileCompleted',
+          'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    match /listings/{listingId} {
+      function validListingImagePath(path) {
+        return path is string
+          && path.matches('^listing-images/' + request.auth.uid + '/' + listingId + '/[^/]+$');
+      }
+
+      function validListingImagePathAt(paths, index) {
+        return paths.size() <= index || validListingImagePath(paths[index]);
+      }
+
+      function validListingImagePaths(paths) {
+        return paths is list
+          && paths.size() >= 1
+          && paths.size() <= 8
+          && validListingImagePathAt(paths, 0)
+          && validListingImagePathAt(paths, 1)
+          && validListingImagePathAt(paths, 2)
+          && validListingImagePathAt(paths, 3)
+          && validListingImagePathAt(paths, 4)
+          && validListingImagePathAt(paths, 5)
+          && validListingImagePathAt(paths, 6)
+          && validListingImagePathAt(paths, 7);
+      }
+
+      function validListingImageUrlAt(images, index) {
+        return images.size() <= index
+          || (images[index] is string && images[index].size() <= 2048);
+      }
+
+      function validListingImages(images) {
+        return images is list
+          && images.size() >= 1
+          && images.size() <= 8
+          && validListingImageUrlAt(images, 0)
+          && validListingImageUrlAt(images, 1)
+          && validListingImageUrlAt(images, 2)
+          && validListingImageUrlAt(images, 3)
+          && validListingImageUrlAt(images, 4)
+          && validListingImageUrlAt(images, 5)
+          && validListingImageUrlAt(images, 6)
+          && validListingImageUrlAt(images, 7);
+      }
+
+      function validListingData(data) {
+        return data.image is string
+          && data.image.size() <= 2048
+          && validListingImages(data.images)
+          && validListingImagePath(data.imagePath)
+          && validListingImagePaths(data.imagePaths)
+          && data.image == data.images[0]
+          && data.imagePath == data.imagePaths[0]
+          && data.make is string
+          && data.make.size() > 0
+          && data.make.size() <= 50
+          && data.model is string
+          && data.model.size() > 0
+          && data.model.size() <= 80
+          && data.year is int
+          && data.year >= 1900
+          && data.year <= 2100
+          && (data.price is int || data.price is float)
+          && data.price > 0
+          && (data.mileage is int || data.mileage is float)
+          && data.mileage >= 0
+          && data.vin is string
+          && data.vin.size() > 0
+          && data.vin.size() <= 20
+          && data.fuel is string
+          && data.fuel.size() <= 50
+          && data.transmission is string
+          && data.transmission.size() <= 50
+          && data.transportStatus is string
+          && data.transportStatus.size() <= 80
+          && data.arrivalDate is string
+          && data.arrivalDate.size() <= 30
+          && validOptionalString(data, 'damageDescription', 1000)
+          && data.sellerName is string
+          && data.sellerName.size() > 0
+          && data.sellerName.size() <= 120
+          && data.phone is string
+          && data.phone.size() <= 30
+          && data.sellerType in ['individual', 'company']
+          && data.ownerEmail is string
+          && data.ownerEmail.size() <= 254
+          && validOptionalString(data, 'companyName', 160)
+          && (
+            !('companyVerificationStatus' in data)
+            || data.companyVerificationStatus in ['verified', 'not_required']
+          )
+          && (
+            data.sellerType != 'company'
+            || !('companyVerificationStatus' in data)
+            || data.companyVerificationStatus == 'verified'
+          )
+          && (
+            data.sellerType != 'company'
+            || !('companyName' in data)
+            || data.companyName == userProfile().companyName
+          )
+          && (
+            data.sellerType != 'individual'
+            || !('companyVerificationStatus' in data)
+            || data.companyVerificationStatus == 'not_required'
+          )
+          && (
+            !('market' in data)
+            || ((data.market is int || data.market is float) && data.market > 0)
+          )
+          && (
+            !('schemaVersion' in data)
+            || data.schemaVersion is int
+          )
+          && (
+            !('vinSearch' in data)
+            || (data.vinSearch is string && data.vinSearch.size() <= 20)
+          )
+          && (
+            !('makeModelSearch' in data)
+            || (data.makeModelSearch is string && data.makeModelSearch.size() <= 140)
+          )
+          && (
+            !('sellerSearch' in data)
+            || (data.sellerSearch is string && data.sellerSearch.size() <= 160)
+          );
+      }
+
+      allow read: if resource.data.status == 'published'
+        || (signedIn() && resource.data.ownerId == request.auth.uid)
+        || isAdmin();
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.auth.token.email_verified == true
+        && request.resource.data.status == 'pending'
+        && canUseSellerType(request.resource.data.sellerType)
+        && request.resource.data.keys().hasAll([
+          'make', 'model', 'year', 'price', 'vin', 'mileage', 'fuel',
+          'transmission', 'transportStatus', 'arrivalDate', 'sellerName',
+          'phone', 'sellerType', 'ownerId', 'ownerEmail', 'status',
+          'createdAt', 'updatedAt', 'imagePath', 'imagePaths',
+          'vinSearch', 'makeModelSearch', 'sellerSearch'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'make', 'model', 'year', 'price', 'vin', 'mileage', 'fuel',
+          'transmission', 'transportStatus', 'arrivalDate',
+          'damageDescription', 'sellerName', 'phone', 'sellerType',
+          'ownerId', 'ownerEmail', 'status', 'createdAt', 'updatedAt',
+          'image', 'images', 'imagePath', 'imagePaths', 'market', 'schemaVersion',
+          'companyName', 'companyVerificationStatus',
+          'vinSearch', 'makeModelSearch', 'sellerSearch'
+        ])
+        && validListingData(request.resource.data);
+      allow update: if signedIn()
+          && resource.data.ownerId == request.auth.uid
+          && resource.data.status == 'pending'
+          && request.resource.data.ownerId == resource.data.ownerId
+          && request.resource.data.status == resource.data.status
+          && canUseSellerType(request.resource.data.sellerType)
+          && request.resource.data.createdAt == resource.data.createdAt
+          && validListingData(request.resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'make', 'model', 'year', 'price', 'vin', 'mileage', 'fuel',
+            'transmission', 'transportStatus', 'arrivalDate',
+            'damageDescription', 'sellerName', 'phone', 'sellerType',
+            'updatedAt', 'image', 'images', 'imagePath', 'imagePaths', 'market',
+            'companyName', 'companyVerificationStatus',
+            'vinSearch', 'makeModelSearch', 'sellerSearch'
+          ]);
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    match /listingModerationEvents/{eventId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /adminAccessEvents/{eventId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /companyVerificationEvents/{eventId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+  }
+}

@@ -1,0 +1,195 @@
+.listingsCard {
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.listingsHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.listingsTitle {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.listingsSub,
+.listingMeta,
+.emptyText {
+  color: var(--color-text-muted);
+}
+
+.listingsSub {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.statusPublished {
+  background: var(--color-success-soft);
+  color: var(--color-success-strong);
+}
+
+.statusRejected {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.statusPending,
+.statusDraft {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+}
+
+.error {
+  border-radius: 12px;
+  background: var(--color-danger-soft);
+  padding: 16px;
+  color: var(--color-danger);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.listError {
+  margin-top: 24px;
+}
+
+.listLoading {
+  padding: 56px 0;
+  color: var(--color-text-muted);
+  text-align: center;
+  font-size: 14px;
+}
+
+.listingList {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.listingItem {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid var(--color-surface-muted);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.listingIcon {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--color-page-muted);
+  color: var(--color-brand);
+}
+
+.listingBody {
+  min-width: 0;
+  flex: 1;
+}
+
+.listingTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.listingTitle {
+  font-weight: 700;
+}
+
+.listingMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.metaWithIcon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rejection {
+  margin-top: 12px;
+  border-radius: 8px;
+  background: var(--color-danger-soft);
+  padding: 8px 12px;
+  color: var(--color-danger);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.deleteButton {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  color: var(--color-text-subtle);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.deleteButton:hover {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.deleteButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.deleteButton:disabled:hover {
+  background: transparent;
+  color: var(--color-text-subtle);
+}
+
+.empty {
+  margin-top: 32px;
+  border: 2px dashed var(--color-surface-muted);
+  border-radius: 16px;
+  padding: 48px 20px;
+  text-align: center;
+}
+
+.emptyIcon {
+  margin: 0 auto;
+  color: var(--color-border-strong);
+}
+
+.emptyTitle {
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.emptyText {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+@media (min-width: 640px) {
+  .listingItem {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}

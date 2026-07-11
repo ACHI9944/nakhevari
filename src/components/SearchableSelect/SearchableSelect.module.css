@@ -1,0 +1,160 @@
+.root {
+  position: relative;
+}
+
+.trigger {
+  display: flex;
+  width: 100%;
+  height: 56px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  padding: 0 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.trigger:hover {
+  border-color: var(--color-border-strong);
+}
+
+.triggerOpen {
+  border-color: var(--color-brand);
+  box-shadow: var(--shadow-focus);
+}
+
+.trigger:disabled {
+  cursor: not-allowed;
+  background: var(--color-page-muted);
+  color: var(--color-text-subtle);
+}
+
+.value {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: var(--color-text-subtle);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.valueSelected {
+  color: var(--color-text);
+}
+
+.chevron {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--color-surface-muted);
+  color: var(--color-dark-muted);
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.chevronOpen {
+  background: var(--color-brand);
+  color: var(--color-text-inverse);
+  transform: rotate(180deg);
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  left: 0;
+  z-index: 70;
+  margin-top: 8px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-popover);
+}
+
+.searchWrap {
+  border-bottom: 1px solid var(--color-surface-muted);
+  padding: 12px;
+}
+
+.searchBox {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  color: var(--color-text-subtle);
+  transform: translateY(-50%);
+}
+
+.searchInput {
+  width: 100%;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--color-page-muted);
+  padding: 0 12px 0 40px;
+  font-size: 14px;
+  outline: none;
+}
+
+.searchInput:focus {
+  box-shadow: 0 0 0 2px var(--color-brand);
+}
+
+.list {
+  max-height: 256px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.option {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: var(--color-text-soft);
+  text-align: left;
+  font-size: 14px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.option:hover,
+.emptyOption:hover {
+  background: var(--color-page-muted);
+}
+
+.emptyOption {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: var(--color-dark-muted);
+  text-align: left;
+  font-size: 14px;
+}
+
+.optionSelected {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  font-weight: 700;
+}
+
+.emptyText {
+  padding: 32px 12px;
+  color: var(--color-text-subtle);
+  text-align: center;
+  font-size: 14px;
+}

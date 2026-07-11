@@ -1,0 +1,46 @@
+.googleButton {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.googleButton:hover {
+  background: var(--color-page-muted);
+}
+
+.googleButton:disabled {
+  opacity: 0.6;
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.dividerLine {
+  height: 1px;
+  flex: 1;
+  background: var(--color-surface-muted);
+}
+
+.dividerText {
+  color: var(--color-text-subtle);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}

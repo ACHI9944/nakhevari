@@ -1,0 +1,5 @@
+export { AuthAside } from './AuthAside/AuthAside'
+export { AuthModeTabs } from './AuthModeTabs/AuthModeTabs'
+export { AuthPasswordFields } from './AuthPasswordFields/AuthPasswordFields'
+export { AuthRegisterFields } from './AuthRegisterFields/AuthRegisterFields'
+export { AuthSocialLogin } from './AuthSocialLogin/AuthSocialLogin'

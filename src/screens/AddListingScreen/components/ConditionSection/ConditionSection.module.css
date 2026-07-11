@@ -1,0 +1,152 @@
+.card {
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.cardTitle {
+  margin-bottom: 24px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  padding: 14px 16px;
+  color: var(--color-text);
+  font-size: 14px;
+  outline: none;
+  resize: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.textarea:focus {
+  border-color: var(--color-brand);
+  box-shadow: var(--shadow-focus);
+}
+
+.photosBlock {
+  margin-top: 20px;
+}
+
+.photosGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.photoPreview {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--color-surface-muted);
+}
+
+.photoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.coverBadge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  border-radius: 6px;
+  background: var(--color-overlay);
+  padding: 4px 8px;
+  color: var(--color-text-inverse);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.removePhoto {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.9);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.removePhoto:hover {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.uploadBox {
+  display: flex;
+  min-height: 128px;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--color-border);
+  border-radius: 16px;
+  background: var(--color-page-muted);
+  text-align: center;
+  transition: border-color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.uploadBox:hover {
+  border-color: rgb(var(--color-brand-rgb) / 0.5);
+  background: var(--color-brand-soft-warm);
+}
+
+.uploadBox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.uploadIcon {
+  margin-bottom: 12px;
+  color: var(--color-brand);
+}
+
+.uploadTitle {
+  font-size: 14px;
+}
+
+.uploadHint {
+  margin-top: 4px;
+  color: var(--color-text-subtle);
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: 28px;
+  }
+
+  .photosGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

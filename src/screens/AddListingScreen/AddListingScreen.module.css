@@ -1,0 +1,102 @@
+.main {
+  background: var(--color-page-muted);
+  padding: 40px 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 896px;
+  margin: 0 auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  color: var(--color-dark-muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.backButton:hover {
+  color: var(--color-text);
+}
+
+.intro {
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  border: 1px solid var(--color-brand-border);
+  border-radius: 999px;
+  background: var(--color-brand-soft);
+  padding: 8px 14px;
+  color: var(--color-brand);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.title {
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.description {
+  margin-top: 12px;
+  color: var(--color-text-muted);
+}
+
+.form {
+  display: grid;
+  gap: 24px;
+}
+
+.error {
+  border: 1px solid var(--color-danger-border);
+  border-radius: 12px;
+  background: var(--color-danger-soft);
+  padding: 16px;
+  color: var(--color-danger);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.submit {
+  width: 100%;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+@media (min-width: 640px) {
+  .main {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+
+  .container {
+    padding-right: 32px;
+    padding-left: 32px;
+  }
+
+  .title {
+    font-size: 36px;
+  }
+
+  .submit {
+    width: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-right: 40px;
+    padding-left: 40px;
+  }
+}

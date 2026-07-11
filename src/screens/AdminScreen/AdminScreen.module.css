@@ -1,0 +1,624 @@
+.main {
+  min-height: 70vh;
+  background: var(--color-page-muted);
+  padding: 40px 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  border: 1px solid var(--color-brand-border);
+  border-radius: 999px;
+  background: var(--color-brand-soft);
+  padding: 8px 14px;
+  color: var(--color-brand);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.title {
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.description,
+.muted,
+.meta,
+.fieldLabel {
+  color: var(--color-text-muted);
+}
+
+.description {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.secure {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  border-radius: 12px;
+  background: var(--color-success-soft);
+  padding: 12px 16px;
+  color: var(--color-success-strong);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tabs {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 8px;
+  box-shadow: var(--shadow-card);
+}
+
+.tab {
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: var(--color-dark-muted);
+  font-size: 14px;
+  font-weight: 700;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tab:hover {
+  background: var(--color-page-muted);
+  color: var(--color-text);
+}
+
+.tabActive {
+  background: var(--color-dark);
+  color: var(--color-text-inverse);
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  border: 1px solid var(--color-surface-muted);
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 0 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.searchIcon {
+  color: var(--color-text-subtle);
+}
+
+.searchInput {
+  width: 100%;
+  background: transparent;
+  padding: 16px 0;
+  font-size: 14px;
+  outline: none;
+}
+
+.error {
+  margin-bottom: 20px;
+  border: 1px solid var(--color-danger-border);
+  border-radius: 12px;
+  background: var(--color-danger-soft);
+  padding: 16px;
+  color: var(--color-danger);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.maintenance {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+  border: 1px solid var(--color-surface-muted);
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 18px;
+  box-shadow: var(--shadow-card);
+}
+
+.maintenanceTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.maintenanceText,
+.maintenanceMeta {
+  margin-top: 8px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.maintenanceMeta {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.maintenanceError {
+  margin-top: 8px;
+  color: var(--color-danger);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.maintenanceActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.statusGrid,
+.companyCounts {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.statusButton,
+.countCard {
+  border: 1px solid var(--color-surface-muted);
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 16px;
+  text-align: left;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.statusButton:hover {
+  border-color: var(--color-border);
+}
+
+.statusButtonActive {
+  border-color: var(--color-brand);
+  background: var(--color-brand-soft);
+}
+
+.statusLabel {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.statusCount {
+  display: block;
+  margin-top: 8px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.loadingBox {
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 80px 0;
+  color: var(--color-text-muted);
+  text-align: center;
+  font-size: 14px;
+}
+
+.splitGrid {
+  display: grid;
+  gap: 24px;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+}
+
+.listButton {
+  width: 100%;
+  border: 1px solid var(--color-surface-muted);
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 20px;
+  text-align: left;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.listButton:hover {
+  border-color: var(--color-border);
+}
+
+.selected {
+  border-color: var(--color-brand);
+  box-shadow: var(--shadow-card);
+}
+
+.itemHeader,
+.asideHeader,
+.userHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.adminHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.itemTitle,
+.panelTitle,
+.adminTitle {
+  font-weight: 700;
+}
+
+.itemSub,
+.adminDescription {
+  margin-top: 4px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.itemMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.badgeVerified,
+.badgePublished {
+  background: var(--color-success-soft);
+  color: var(--color-success-strong);
+}
+
+.badgeRejected {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.badgePending,
+.badgeDraft {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+}
+
+.reviewPanel {
+  height: fit-content;
+  border: 1px solid var(--color-surface-muted);
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.reviewEyebrow {
+  color: var(--color-brand);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.reviewTitle {
+  margin-top: 8px;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.yearBadge {
+  border-radius: 12px;
+  background: var(--color-page-muted);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.detailGrid {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+  border-top: 1px solid var(--color-surface-muted);
+  border-bottom: 1px solid var(--color-surface-muted);
+  padding: 24px 0;
+}
+
+.fieldLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.fieldValue {
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.damage {
+  margin-top: 20px;
+}
+
+.damageTitle {
+  color: var(--color-text-subtle);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.damageText {
+  margin-top: 8px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.reviewActions,
+.buttonGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.reviewActions {
+  margin-top: 24px;
+}
+
+.field,
+.textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  padding: 14px 16px;
+  color: var(--color-text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field:focus,
+.textarea:focus {
+  border-color: var(--color-brand);
+  box-shadow: var(--shadow-focus);
+}
+
+.textarea {
+  resize: none;
+}
+
+.dangerButton {
+  color: var(--color-danger);
+}
+
+.reviewed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  border-radius: 12px;
+  background: var(--color-page-muted);
+  padding: 16px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.userGrid {
+  display: grid;
+  gap: 16px;
+}
+
+.userCard,
+.adminPanel {
+  border: 1px solid var(--color-surface-muted);
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-page-muted);
+  color: var(--color-brand);
+}
+
+.userMeta {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.metaLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.adminPanel {
+  padding: 20px;
+}
+
+.adminForm {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+}
+
+.adminList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.adminChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 12px;
+  background: var(--color-page-muted);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.brandIcon {
+  color: var(--color-brand);
+}
+
+.removeAdmin {
+  color: var(--color-text-subtle);
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.removeAdmin:hover {
+  color: var(--color-danger);
+}
+
+.removeAdmin:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+.empty {
+  border: 2px dashed var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.emptyIcon {
+  margin: 0 auto;
+  color: var(--color-border-strong);
+}
+
+.emptyTitle {
+  margin-top: 16px;
+  font-weight: 700;
+}
+
+@media (min-width: 640px) {
+  .main {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+
+  .container {
+    padding-right: 32px;
+    padding-left: 32px;
+  }
+
+  .header {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .title {
+    font-size: 36px;
+  }
+
+  .tabs {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .statusGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .companyCounts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .detailGrid,
+  .buttonGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .adminPanel {
+    padding: 24px;
+  }
+
+  .adminHeader {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .adminForm {
+    max-width: 448px;
+  }
+
+  .maintenance {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .maintenanceActions {
+    flex-direction: row;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-right: 40px;
+    padding-left: 40px;
+  }
+
+  .splitGrid {
+    grid-template-columns: 0.9fr 1.1fr;
+  }
+
+  .reviewPanel {
+    position: sticky;
+    top: 96px;
+  }
+
+  .userGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

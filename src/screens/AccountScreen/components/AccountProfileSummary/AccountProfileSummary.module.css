@@ -1,0 +1,75 @@
+.card {
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.profileHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--color-dark);
+  color: var(--color-text-inverse);
+}
+
+.avatarImage {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.name {
+  font-weight: 700;
+}
+
+.email {
+  margin-top: 4px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.iconButton {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--color-text-subtle);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.iconButton:hover {
+  background: var(--color-page-muted);
+  color: var(--color-text);
+}
+
+.protected {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  border-radius: 12px;
+  background: var(--color-success-soft);
+  padding: 16px;
+  color: var(--color-success-strong);
+  font-size: 12px;
+  font-weight: 700;
+}

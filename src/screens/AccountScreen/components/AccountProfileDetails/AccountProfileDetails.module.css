@@ -1,0 +1,221 @@
+.card {
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.iconButton {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--color-text-subtle);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.iconButton:hover {
+  background: var(--color-page-muted);
+  color: var(--color-text);
+}
+
+.profileTitle {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.profileSub,
+.companyId {
+  color: var(--color-text-muted);
+}
+
+.profileSub {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.profileRows,
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.profileRows {
+  font-size: 14px;
+}
+
+.profileRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 12px;
+  background: var(--color-page-muted);
+  padding: 16px;
+}
+
+.rowIcon {
+  color: var(--color-text-subtle);
+}
+
+.truncate {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.successIcon {
+  color: var(--color-success);
+}
+
+.companyBox {
+  border: 1px solid var(--color-surface-muted);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.companyRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.companyLabel {
+  color: var(--color-text-subtle);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.companyName {
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.companyId {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.statusVerified,
+.statusPublished {
+  background: var(--color-success-soft);
+  color: var(--color-success-strong);
+}
+
+.statusRejected {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.statusPending,
+.statusDraft {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+}
+
+.formGrid,
+.radioGrid,
+.actions {
+  display: grid;
+  gap: 16px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.field {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  padding: 14px 16px;
+  color: var(--color-text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field:focus {
+  border-color: var(--color-brand);
+  box-shadow: var(--shadow-focus);
+}
+
+.blockLabel {
+  display: block;
+}
+
+.radioGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.radioLabel {
+  cursor: pointer;
+}
+
+.radioInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.radioCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.radioInput:checked + .radioCard {
+  border-color: var(--color-brand);
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+}
+
+.error {
+  border-radius: 12px;
+  background: var(--color-danger-soft);
+  padding: 16px;
+  color: var(--color-danger);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (min-width: 640px) {
+  .formGrid,
+  .actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

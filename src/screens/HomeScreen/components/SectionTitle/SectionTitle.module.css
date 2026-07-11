@@ -1,0 +1,45 @@
+.sectionTitle {
+  max-width: 672px;
+  margin-bottom: 40px;
+}
+
+.center {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  border: 1px solid var(--color-brand-border);
+  border-radius: 999px;
+  background: var(--color-brand-soft);
+  padding: 8px 14px;
+  color: var(--color-brand);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.heading {
+  color: var(--color-text);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.text {
+  margin-top: 16px;
+  color: var(--color-text-muted);
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+@media (min-width: 640px) {
+  .heading {
+    font-size: 36px;
+  }
+}

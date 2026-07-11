@@ -1,0 +1,102 @@
+.label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.field,
+.iconInput {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  padding: 14px 16px;
+  color: var(--color-text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field::placeholder,
+.iconInput::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.field:focus,
+.iconInput:focus {
+  border-color: var(--color-brand);
+  box-shadow: var(--shadow-focus);
+}
+
+.iconInput {
+  padding-left: 44px;
+}
+
+.twoColumnGrid,
+.accountTypeGrid {
+  display: grid;
+  gap: 16px;
+}
+
+.inputWrap {
+  position: relative;
+}
+
+.inputIcon {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  color: var(--color-text-subtle);
+  transform: translateY(-50%);
+}
+
+.phoneHint {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-text-subtle);
+  font-size: 10px;
+}
+
+.accountTypeGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.radioLabel {
+  cursor: pointer;
+}
+
+.radioInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.radioCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.radioInput:checked + .radioCard {
+  border-color: var(--color-brand);
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+}
+
+@media (min-width: 640px) {
+  .twoColumnGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

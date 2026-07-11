@@ -1,0 +1,530 @@
+.heroSection {
+  overflow: hidden;
+  background: var(--color-dark);
+  color: var(--color-text-inverse);
+}
+
+.heroGrid {
+  position: relative;
+  display: grid;
+  width: 100%;
+  max-width: 1240px;
+  min-height: 620px;
+  margin: 0 auto;
+  padding: 64px 20px 96px;
+  align-items: center;
+  gap: 48px;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.12) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 10;
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  border: 1px solid var(--color-glass);
+  border-radius: 999px;
+  background: var(--color-glass-soft);
+  padding: 8px 14px;
+  color: var(--color-warm);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.heroTitle {
+  max-width: 768px;
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.brandText,
+.heroBenefitIcon,
+.offerPrice {
+  color: var(--color-brand);
+}
+
+.heroDescription {
+  max-width: 576px;
+  margin-top: 24px;
+  color: var(--color-border-strong);
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.heroActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.heroSecondaryButton {
+  border: 1px solid var(--color-glass-strong);
+  background: var(--color-glass);
+}
+
+.heroSecondaryButton:hover {
+  background: var(--color-glass-strong);
+}
+
+.heroBenefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 40px;
+  color: var(--color-text-subtle);
+  font-size: 12px;
+}
+
+.heroBenefit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.heroVisual {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.heroGlow {
+  position: absolute;
+  top: -32px;
+  left: -32px;
+  width: 176px;
+  height: 176px;
+  border-radius: 999px;
+  background: rgb(var(--color-brand-rgb) / 0.2);
+  filter: blur(64px);
+}
+
+.heroCard {
+  position: relative;
+  overflow: hidden;
+  transform: rotate(1deg);
+  border: 1px solid var(--color-glass);
+  border-radius: 28px;
+  background: var(--color-glass-soft);
+  padding: 12px;
+  box-shadow: var(--shadow-popover);
+}
+
+.heroImageFrame {
+  position: relative;
+  height: 360px;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroImageFade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(11, 20, 37, 0.82), transparent 58%);
+}
+
+.heroStatus {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  border-radius: 8px;
+  background: var(--color-brand);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.heroOverlay {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  left: 20px;
+}
+
+.heroOverlayRow,
+.priceRow,
+.savingsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.heroOverlayRow {
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.heroCompare {
+  color: rgb(255 255 255 / 0.7);
+  font-size: 12px;
+}
+
+.heroPrice {
+  margin-top: 4px;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.heroUpdated {
+  border-radius: 8px;
+  background: var(--color-glass-strong);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+.heroUpdatedIcon {
+  display: inline;
+  margin-right: 4px;
+}
+
+.searchSection,
+.listingsSection,
+.sectionContainer,
+.brandSection,
+.companiesSection {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+.listingsSection,
+.brandSection,
+.companiesSection {
+  padding-top: 96px;
+  padding-bottom: 96px;
+}
+
+.sectionHeaderRow {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.loadingBox {
+  border: 1px solid var(--color-surface-muted);
+  border-radius: 16px;
+  background: var(--color-page-muted);
+  padding: 56px 24px;
+  color: var(--color-text-muted);
+  text-align: center;
+  font-size: 14px;
+}
+
+.listingsGrid {
+  display: grid;
+  gap: 24px;
+}
+
+.emptyState {
+  border: 2px dashed var(--color-border);
+  border-radius: 16px;
+  background: var(--color-page-muted);
+  padding: 56px 24px;
+  text-align: center;
+}
+
+.emptyTitle {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.emptyText {
+  margin-top: 8px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.emptyAction,
+.companiesAction {
+  margin-top: 20px;
+}
+
+.mutedSection {
+  background: var(--color-page-muted);
+  padding-top: 96px;
+  padding-bottom: 96px;
+}
+
+.brandGrid {
+  display: grid;
+  align-items: center;
+  gap: 56px;
+}
+
+.brandMission {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.priceCard {
+  border-radius: 28px;
+  background: var(--color-dark);
+  padding: 24px;
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-panel);
+}
+
+.priceCardLabel {
+  margin-bottom: 24px;
+  color: var(--color-text-subtle);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.marketBox {
+  border-radius: 16px;
+  background: var(--color-glass-soft);
+  padding: 20px;
+}
+
+.marketLabel {
+  color: var(--color-border-strong);
+  font-size: 14px;
+}
+
+.priceStrong {
+  font-weight: 700;
+}
+
+.progressTrack {
+  height: 8px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: var(--color-glass);
+}
+
+.marketProgress,
+.offerProgress {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.marketProgress {
+  width: 100%;
+  background: var(--color-dark-muted);
+}
+
+.offerBox {
+  position: relative;
+  margin-top: 12px;
+  border: 1px solid rgb(var(--color-brand-rgb) / 0.4);
+  border-radius: 16px;
+  background: rgb(var(--color-brand-rgb) / 0.1);
+  padding: 20px;
+}
+
+.offerBadge {
+  position: absolute;
+  top: -12px;
+  right: -8px;
+  border-radius: 999px;
+  background: var(--color-brand);
+  padding: 4px 12px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.offerLabel {
+  color: var(--color-brand-soft-strong);
+  font-size: 14px;
+}
+
+.offerPrice {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.offerProgress {
+  width: 78%;
+  background: var(--color-brand);
+}
+
+.savingsRow {
+  margin-top: 20px;
+  border-top: 1px solid var(--color-glass);
+  padding-top: 16px;
+  font-size: 12px;
+}
+
+.savingsLabel {
+  color: var(--color-text-subtle);
+}
+
+.savingsValue {
+  color: var(--color-warm);
+  font-weight: 700;
+}
+
+.disclaimer {
+  margin-top: 16px;
+  color: var(--color-dark-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.trustGrid {
+  display: grid;
+  gap: 20px;
+}
+
+.companiesCard {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  background: var(--color-dark);
+  padding: 48px 24px;
+  color: var(--color-text-inverse);
+}
+
+.companiesGlow {
+  position: absolute;
+  top: -128px;
+  right: -80px;
+  width: 320px;
+  height: 320px;
+  border-radius: 999px;
+  background: rgb(var(--color-brand-rgb) / 0.2);
+  filter: blur(64px);
+}
+
+.companiesContent {
+  position: relative;
+  z-index: 10;
+  max-width: 672px;
+}
+
+.companiesEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  border: 1px solid var(--color-glass);
+  border-radius: 999px;
+  background: var(--color-glass-soft);
+  padding: 8px 14px;
+  color: var(--color-warm);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.companiesTitle {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.companiesText {
+  margin-top: 20px;
+  color: var(--color-border-strong);
+  line-height: 1.75;
+}
+
+@media (min-width: 640px) {
+  .heroTitle {
+    font-size: 48px;
+  }
+
+  .heroDescription {
+    font-size: 18px;
+  }
+
+  .heroActions {
+    flex-direction: row;
+  }
+
+  .listingsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sectionHeaderRow {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .priceCard {
+    padding: 32px;
+  }
+
+  .trustGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .companiesCard {
+    padding-right: 48px;
+    padding-left: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heroGrid {
+    grid-template-columns: 1.05fr 0.95fr;
+    padding-top: 96px;
+    padding-bottom: 96px;
+  }
+
+  .heroTitle {
+    font-size: 58px;
+  }
+
+  .listingsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .brandGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .trustGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .companiesCard {
+    padding-right: 64px;
+    padding-left: 64px;
+  }
+}
+
+@media (min-width: 640px) {
+  .heroGrid,
+  .searchSection,
+  .listingsSection,
+  .sectionContainer,
+  .brandSection,
+  .companiesSection {
+    padding-right: 32px;
+    padding-left: 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heroGrid,
+  .searchSection,
+  .listingsSection,
+  .sectionContainer,
+  .brandSection,
+  .companiesSection {
+    padding-right: 40px;
+    padding-left: 40px;
+  }
+}
