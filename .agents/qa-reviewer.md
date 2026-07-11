@@ -21,8 +21,11 @@ Specialist for reviewing changes, finding regressions, and verifying behavior.
 - Check whether sensitive flows still write audit events.
 - Check whether Firestore/Storage rules still match client behavior.
 - Check whether Redux state remains serializable.
+- If a Cloud Function writes fields via the Admin SDK, check whether the matching client-side `update` rule uses `keys().hasOnly()` (full document — breaks on any Admin SDK field it doesn't know about) instead of `diff().affectedKeys().hasOnly()` (only the changed fields — safe). See `.agents/firebase-security.md` for the incident this pattern caused.
 - Run available checks when practical:
   - `npm run typecheck`
   - `npm run lint`
   - `npm run build`
+  - `npm run test` (Vitest unit tests for `src/utils/`)
+  - `npm run test:rules` (Firestore rules regression tests against the emulator — requires Java 21+; see `.agents/testing.md`)
 - If checks cannot run, explain why.

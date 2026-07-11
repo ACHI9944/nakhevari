@@ -318,10 +318,17 @@ export async function getPublishedListings(options = {}) {
   }
 }
 
+// The admin dashboard filters/searches/counts across every status entirely
+// client-side (src/screens/AdminScreen/hooks/useAdminDashboardData.js), so it needs
+// the full working set rather than a paginated slice. adminListingsFetchCap is a
+// safety ceiling, not a page size: past this many listings the dashboard needs real
+// server-side counts/pagination instead of a larger cap.
+const adminListingsFetchCap = 2000
+
 export async function getAdminListings(status = 'pending') {
   const listingsQuery = status === 'all'
-    ? query(listingsRef)
-    : query(listingsRef, where('status', '==', status))
+    ? query(listingsRef, limit(adminListingsFetchCap))
+    : query(listingsRef, where('status', '==', status), limit(adminListingsFetchCap))
   const snapshot = await getDocs(listingsQuery)
   return snapshot.docs.map(mapListing).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
 }

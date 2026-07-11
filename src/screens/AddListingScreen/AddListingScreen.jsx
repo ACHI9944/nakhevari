@@ -63,7 +63,8 @@ export function AddListing() {
         profile,
       );
       navigate("/account", { replace: true });
-    } catch {
+    } catch (error) {
+      console.error('add-listing: failed to save listing', error);
       setError(t('add.saveError'));
     } finally {
       setSaving(false);

@@ -1,3 +1,4 @@
+import { cx } from '../../../../utils/classNames'
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CalendarDays, ChevronDown, DollarSign, Gauge, Search, SlidersHorizontal, X } from "lucide-react";
@@ -13,8 +14,6 @@ import {
   priceCurrencySymbol,
 } from "../../../../utils/listingFilterUnits";
 import styles from "./SearchFilters.module.css";
-
-const cx = (...classes) => classes.filter(Boolean).join(" ");
 
 export function SearchFilters({ onSearch }) {
   const { t } = useTranslation();

@@ -6,6 +6,7 @@ import { Button, Footer, Header } from '../../components'
 import { useAuth } from '../../store/useAuth'
 import { SearchableSelect } from '../../components/SearchableSelect/SearchableSelect'
 import { DatePicker } from '../../components/DatePicker/DatePicker'
+import { isValidGeorgianPhone, normalizeGeorgianPhone } from '../../utils/phone'
 import appStyles from '../../app/App.module.css'
 import styles from './CompleteProfileScreen.module.css'
 
@@ -46,9 +47,8 @@ export function CompleteProfilePage() {
       setSaving(false)
       return
     }
-    let phone = String(form.get('phone')).replace(/[\s()-]/g, '')
-    if (/^5\d{8}$/.test(phone)) phone = `+995${phone}`
-    if (!/^\+9955\d{8}$/.test(phone)) {
+    const phone = normalizeGeorgianPhone(form.get('phone'))
+    if (!isValidGeorgianPhone(phone)) {
       setError(t('auth.errors.invalidPhone'))
       setSaving(false)
       return
@@ -61,7 +61,8 @@ export function CompleteProfilePage() {
         companyName: form.get('companyName'), identificationNumber: form.get('identificationNumber'),
       })
       navigate('/account', { replace: true })
-    } catch {
+    } catch (error) {
+      console.error('complete-profile: failed to save profile', error)
       setError(t('profileCompletion.error'))
     } finally {
       setSaving(false)

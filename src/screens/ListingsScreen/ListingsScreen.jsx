@@ -1,3 +1,4 @@
+import { cx } from '../../utils/classNames'
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -25,8 +26,6 @@ import { presentListingCard } from '../../utils/listingPresenter'
 import { CarCard } from '../HomeScreen/components'
 import styles from './ListingsScreen.module.css'
 
-const cx = (...classes) => classes.filter(Boolean).join(' ')
-
 export function Listings() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -43,10 +42,19 @@ export function Listings() {
   const { rate: gelPerUsd } = useUsdGelRate()
   const listingsLoading = status === 'idle' || status === 'loading'
 
-  useEffect(() => {
+  const fetchRequest = useMemo(() => {
     const { sort, ...serviceFilters } = appliedFilters
-    dispatch(fetchPublishedListings({ force: true, filters: toBaseListingFilters(serviceFilters, { gelPerUsd }), sort }))
-  }, [appliedFilters, dispatch, gelPerUsd])
+    return { filters: toBaseListingFilters(serviceFilters, { gelPerUsd }), sort }
+  }, [appliedFilters, gelPerUsd])
+  // Keyed on the converted request, not on gelPerUsd directly: the exchange rate
+  // only changes the query when a GEL price filter is active, so this avoids an
+  // extra Firestore fetch every time the live rate resolves after the fallback.
+  const fetchRequestKey = useMemo(() => JSON.stringify(fetchRequest), [fetchRequest])
+
+  useEffect(() => {
+    dispatch(fetchPublishedListings({ force: true, ...fetchRequest }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchRequestKey, dispatch])
 
   const fuelOptions = localizeVehicleOptions(formGroups[1][1].find(field => field.name === 'fuel').options, t)
   const transmissionOptions = localizeVehicleOptions(formGroups[1][1].find(field => field.name === 'transmission').options, t)
@@ -160,6 +168,7 @@ export function Listings() {
               value={filters.q}
               onChange={event => updateFilter('q', event.target.value)}
               placeholder={t('filters.keywordPlaceholder')}
+              aria-label={t('filters.keyword')}
               className={styles.field}
             />
           </FilterField>
@@ -172,6 +181,7 @@ export function Listings() {
               searchPlaceholder={t('filters.searchMake')}
               emptyText={t('filters.noResults')}
               emptyOptionLabel={t('filters.allMakes')}
+              ariaLabel={t('filters.make')}
               onChange={(value, option) => {
                 updateFilter('make', value)
                 updateFilter('model', '')
@@ -189,6 +199,7 @@ export function Listings() {
               searchPlaceholder={t('filters.searchModel')}
               emptyText={t('filters.noResults')}
               emptyOptionLabel={t('filters.allModels')}
+              ariaLabel={t('filters.model')}
               onChange={value => updateFilter('model', value)}
             />
           </FilterField>

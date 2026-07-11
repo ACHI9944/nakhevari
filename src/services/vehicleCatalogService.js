@@ -19,6 +19,9 @@ async function getResults(path) {
 
 export function getVehicleMakes() {
   if (!makesPromise) {
+    // On failure the promise resolves to the fallback list but is dropped from the
+    // cache, so a later call retries the API instead of being stuck with the
+    // fallback forever.
     makesPromise = Promise.allSettled(VEHICLE_TYPES.map(type => getResults(`GetMakesForVehicleType/${encodeURIComponent(type)}`)))
       .then(results => {
         const uniqueMakes = new Map()
@@ -31,9 +34,14 @@ export function getVehicleMakes() {
           })
         })
         const makes = [...uniqueMakes.values()].sort((a, b) => a.name.localeCompare(b.name))
-        return makes.length ? makes : fallbackMakes
+        if (makes.length) return makes
+        makesPromise = null
+        return fallbackMakes
       })
-      .catch(() => fallbackMakes)
+      .catch(() => {
+        makesPromise = null
+        return fallbackMakes
+      })
   }
   return makesPromise
 }
@@ -41,12 +49,17 @@ export function getVehicleMakes() {
 export function getVehicleModels(makeId) {
   if (!makeId) return Promise.resolve([])
   if (!modelPromises.has(makeId)) {
+    // Same reasoning as getVehicleMakes: drop the cache entry on failure so the
+    // next request for this make retries instead of reusing an empty result.
     modelPromises.set(makeId, getResults(`GetModelsForMakeId/${makeId}`)
       .then(results => {
         const names = new Set(results.map(model => String(model.Model_Name || '').trim()).filter(Boolean))
         return [...names].sort((a, b) => a.localeCompare(b))
       })
-      .catch(() => []))
+      .catch(() => {
+        modelPromises.delete(makeId)
+        return []
+      }))
   }
   return modelPromises.get(makeId)
 }

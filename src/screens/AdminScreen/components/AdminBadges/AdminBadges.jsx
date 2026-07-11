@@ -1,6 +1,5 @@
+import { cx } from '../../../../utils/classNames'
 import styles from '../../AdminScreen.module.css'
-
-const cx = (...classes) => classes.filter(Boolean).join(' ')
 
 export function CompanyBadge({ status, t }) {
   const className = status === 'verified'

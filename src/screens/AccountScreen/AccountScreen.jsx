@@ -8,14 +8,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Button, Footer, Header } from '../../components'
 import { useAuth } from '../../store/useAuth'
 import { deleteListing, fetchMyListings } from '../../store/listingsSlice'
+import { isValidGeorgianPhone, normalizeGeorgianPhone } from '../../utils/phone'
 import { AccountListingsPanel, AccountProfileDetails, AccountProfileSummary } from './components'
 import styles from './AccountScreen.module.css'
-
-const normalizePhone = value => {
-  let phone = String(value || '').replace(/[\s()-]/g, '')
-  if (/^5\d{8}$/.test(phone)) phone = `+995${phone}`
-  return phone
-}
 
 export function AccountPage() {
   const navigate = useNavigate()
@@ -55,7 +50,8 @@ export function AccountPage() {
     setDeletingId(id)
     try {
       await dispatch(deleteListing(id)).unwrap()
-    } catch {
+    } catch (error) {
+      console.error('account: failed to delete listing', error)
       setDeleteError(t('account.deleteError'))
     } finally {
       setDeletingId('')
@@ -86,8 +82,8 @@ export function AccountPage() {
       return
     }
 
-    const phone = normalizePhone(form.get('phone'))
-    if (!/^\+9955\d{8}$/.test(phone)) {
+    const phone = normalizeGeorgianPhone(form.get('phone'))
+    if (!isValidGeorgianPhone(phone)) {
       setFormError(t('auth.errors.invalidPhone'))
       setSaving(false)
       return
@@ -105,7 +101,8 @@ export function AccountPage() {
         identificationNumber: form.get('identificationNumber') || '',
       })
       setEditing(false)
-    } catch {
+    } catch (error) {
+      console.error('account: failed to update profile', error)
       setFormError(t('profileCompletion.error'))
     } finally {
       setSaving(false)

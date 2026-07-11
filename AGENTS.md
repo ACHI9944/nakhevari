@@ -65,6 +65,7 @@ Codex automatically loads this `AGENTS.md` file. The files in `.agents/` are spe
 - Code review, regression risk, and verification: `.agents/qa-reviewer.md`
 - Product UX, listing flows, forms, and admin dashboard polish: `.agents/product-ui.md`
 - Georgian/English copy, translations, and user-facing text: `.agents/i18n-content.md`
+- Automated tests (Vitest unit tests, Firestore rules emulator tests): `.agents/testing.md`
 
 Use the smallest relevant set of specialist guides for the task. Do not load every specialist guide by default.
 
@@ -83,12 +84,19 @@ Use these commands when relevant:
 - Lint frontend:
   `npm run lint`
 
+- Run unit tests (`src/utils/`):
+  `npm run test`
+
+- Run Firestore rules tests against the emulator (needs Java 21+, see `.agents/testing.md`):
+  `npm run test:rules`
+
 There are currently no explicit backend test scripts in `functions/package.json`.
 
 ## Verification Routing
 - Frontend-only change: prefer `npm run typecheck` and `npm run lint`.
 - Broad frontend or build-sensitive change: run `npm run build`.
-- Firebase rules/security change: inspect `firestore.rules`, `storage.rules`, and the matching client/backend access path.
+- Change to `src/utils/` or `src/services/` logic: run `npm run test`, and add/update a test in `tests/utils/` when practical.
+- Firebase rules/security change: inspect `firestore.rules`, `storage.rules`, and the matching client/backend access path, and run `npm run test:rules`.
 - Callable function contract change: inspect the frontend wrapper in `src/services/` and the export in `functions/index.js`.
 - Admin, profile, moderation, or company verification change: read the relevant specialist guide from `.agents/` before editing.
 

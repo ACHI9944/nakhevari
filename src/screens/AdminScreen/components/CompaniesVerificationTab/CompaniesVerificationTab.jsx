@@ -1,10 +1,10 @@
+import { cx } from '../../../../utils/classNames'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { Button } from '../../../../components'
 import { CompanyBadge } from '../AdminBadges/AdminBadges'
 import { EmptyState } from '../EmptyState/EmptyState'
 import styles from '../../AdminScreen.module.css'
 
-const cx = (...classes) => classes.filter(Boolean).join(' ')
 const companyStatuses = ['pending', 'verified', 'rejected']
 
 export function CompaniesVerificationTab({

@@ -75,13 +75,6 @@ service cloud.firestore {
         && request.resource.data.phoneVerified == resource.data.phoneVerified
         && request.resource.data.profileStatus == resource.data.profileStatus
         && resource.data.profileStatus == 'active'
-        && request.resource.data.keys().hasOnly([
-          'firstName', 'lastName', 'name', 'email', 'emailVerified',
-          'phone', 'phoneVerified', 'gender', 'birthDate', 'accountType',
-          'companyName', 'identificationNumber', 'companyVerificationStatus',
-          'profileStatus', 'role', 'profileCompleted', 'photoURL',
-          'lastLoginAt', 'createdAt', 'updatedAt'
-        ])
         && request.resource.data.profileCompleted is bool
         && request.resource.data.name is string
         && request.resource.data.name.size() <= 120
@@ -116,6 +109,9 @@ service cloud.firestore {
             && request.resource.data.companyVerificationStatus == 'not_required'
           )
         )
+        // diff().affectedKeys() only, not keys().hasOnly(): Cloud Functions (e.g.
+        // updateCompanyVerification) write extra fields via Admin SDK that this
+        // client rule must not block on unrelated future updates.
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'firstName', 'lastName', 'name', 'phone',
           'gender', 'birthDate', 'accountType', 'photoURL', 'lastLoginAt',

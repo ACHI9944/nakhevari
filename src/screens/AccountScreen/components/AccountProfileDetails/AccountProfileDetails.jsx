@@ -1,10 +1,9 @@
+import { cx } from '../../../../utils/classNames'
 import { BadgeCheck, Building2, Check, Mail, Phone, UserRound, X } from 'lucide-react'
 import { Button } from '../../../../components'
 import { DatePicker } from '../../../../components/DatePicker/DatePicker'
 import { SearchableSelect } from '../../../../components/SearchableSelect/SearchableSelect'
 import styles from './AccountProfileDetails.module.css'
-
-const cx = (...classes) => classes.filter(Boolean).join(' ')
 
 export function AccountProfileDetails({
   accountType,

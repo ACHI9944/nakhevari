@@ -1,8 +1,7 @@
+import { cx } from '../../utils/classNames'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown } from 'lucide-react'
 import styles from './RangeFilterPopover.module.css'
-
-const cx = (...classes) => classes.filter(Boolean).join(' ')
 
 export function RangeFilterPopover({
   label,
@@ -30,6 +29,8 @@ export function RangeFilterPopover({
     <button
       type="button"
       onClick={onToggle}
+      aria-label={`${label}: ${value}`}
+      aria-expanded={open}
       className={cx(styles.button, size === 'large' && styles.buttonLarge, open && styles.buttonOpen)}
     >
       <span className={styles.value}>{value}</span>
@@ -53,8 +54,8 @@ export function RangeFilterPopover({
         </div>}
       </div>
       <div className={styles.inputs}>
-        <input type="number" min="0" value={minValue} onChange={event => onMinChange(event.target.value)} className={styles.input} placeholder={minPlaceholder} />
-        <input type="number" min="0" value={maxValue} onChange={event => onMaxChange(event.target.value)} className={styles.input} placeholder={maxPlaceholder} />
+        <input type="number" min="0" value={minValue} onChange={event => onMinChange(event.target.value)} className={styles.input} placeholder={minPlaceholder} aria-label={minPlaceholder} />
+        <input type="number" min="0" value={maxValue} onChange={event => onMaxChange(event.target.value)} className={styles.input} placeholder={maxPlaceholder} aria-label={maxPlaceholder} />
       </div>
       <button type="button" onClick={onApply} className={styles.apply}>{t('listings.apply')}</button>
     </div>}

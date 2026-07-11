@@ -1,8 +1,7 @@
+import { cx } from '../../utils/classNames'
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import styles from "./Logo.module.css";
-
-const cx = (...classes) => classes.filter(Boolean).join(" ");
 
 export function Logo({ light = false }) {
   const navigate = useNavigate();

@@ -1,8 +1,7 @@
+import { cx } from '../../../../utils/classNames'
 import { BadgeCheck, CarFront, Clock3, Trash2 } from 'lucide-react'
 import { Button } from '../../../../components'
 import styles from './AccountListingsPanel.module.css'
-
-const cx = (...classes) => classes.filter(Boolean).join(' ')
 
 export function AccountListingsPanel({
   deletingId,

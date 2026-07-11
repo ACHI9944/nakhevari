@@ -1,6 +1,6 @@
+import { cx } from '../../../../utils/classNames'
 import styles from '../../AdminScreen.module.css'
 
-const cx = (...classes) => classes.filter(Boolean).join(' ')
 const tabs = ['listings', 'companies', 'users', 'admins']
 
 export function AdminTabs({ activeTab, onChange, t }) {

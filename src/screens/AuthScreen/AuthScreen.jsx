@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { ArrowLeft, ArrowRight, Mail } from 'lucide-react'
 import { useAuth } from '../../store/useAuth'
 import { Button, Footer, Header } from '../../components'
+import { isValidGeorgianPhone, normalizeGeorgianPhone } from '../../utils/phone'
 import {
   AuthAside,
   AuthModeTabs,
@@ -30,12 +31,6 @@ const errorMessages = {
   'auth/captcha-check-failed': 'captcha',
   'auth/billing-not-enabled': 'billing',
   'auth/quota-exceeded': 'quota',
-}
-
-const normalizePhone = value => {
-  let phone = String(value || '').replace(/[\s()-]/g, '')
-  if (/^5\d{8}$/.test(phone)) phone = `+995${phone}`
-  return phone
 }
 
 export function AuthPage() {
@@ -66,8 +61,8 @@ export function AuthPage() {
         if (accountType === 'individual' && (!gender || !birthDate)) throw { code: 'required-fields' }
         if (form.get('password') !== form.get('confirmPassword')) throw { code: 'password-mismatch' }
 
-        const phone = normalizePhone(form.get('phone'))
-        if (!/^\+9955\d{8}$/.test(phone)) throw { code: 'auth/invalid-phone-number' }
+        const phone = normalizeGeorgianPhone(form.get('phone'))
+        if (!isValidGeorgianPhone(phone)) throw { code: 'auth/invalid-phone-number' }
 
         await register({
           firstName: form.get('firstName'),

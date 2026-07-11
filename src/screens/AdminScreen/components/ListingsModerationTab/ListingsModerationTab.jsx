@@ -1,10 +1,10 @@
+import { cx } from '../../../../utils/classNames'
 import { CheckCircle2, Clock3, XCircle } from 'lucide-react'
 import { Button } from '../../../../components'
 import { StatusBadge } from '../AdminBadges/AdminBadges'
 import { EmptyState } from '../EmptyState/EmptyState'
 import styles from '../../AdminScreen.module.css'
 
-const cx = (...classes) => classes.filter(Boolean).join(' ')
 const listingStatuses = ['pending', 'published', 'rejected', 'draft', 'all']
 
 export function ListingsModerationTab({

@@ -1,11 +1,10 @@
+import { cx } from '../../utils/classNames'
 import { useEffect, useRef, useState } from "react";
 import { DayPicker } from "@daypicker/react";
 import { enUS, ka } from "@daypicker/react/locale";
 import { CalendarDays, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import styles from "./DatePicker.module.css";
-
-const cx = (...classes) => classes.filter(Boolean).join(" ");
 
 const toDate = (value) => {
   if (!value) return undefined;

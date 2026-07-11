@@ -146,7 +146,8 @@ export function AdminPage() {
       })
       setMaintenanceResult(result)
       setMaintenanceCursor(result.nextCursor || '')
-    } catch {
+    } catch (error) {
+      console.error('admin: search index backfill failed', error)
       setMaintenanceError(t('admin.maintenanceError'))
     } finally {
       setMaintenanceLoading(false)

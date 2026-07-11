@@ -1,8 +1,8 @@
+import { cx } from '../../utils/classNames'
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Logo } from "../Logo/Logo";
 import styles from "./Footer.module.css";
-
-const cx = (...classes) => classes.filter(Boolean).join(" ");
 
 export function Footer() {
   const { t } = useTranslation();
@@ -17,8 +17,8 @@ export function Footer() {
         <div>
           <h4 className={styles.title}>{t("footer.navigation")}</h4>
           <div className={styles.links}>
-            <a href="/#listings">{t("nav.listings")}</a>
-            <a href="/#companies">{t("nav.companies")}</a>
+            <Link to="/#listings">{t("nav.listings")}</Link>
+            <Link to="/#companies">{t("nav.companies")}</Link>
           </div>
         </div>
         <div>

@@ -1,6 +1,5 @@
+import { cx } from '../../utils/classNames'
 import styles from "./Button.module.css";
-
-const cx = (...classes) => classes.filter(Boolean).join(" ");
 
 export function Button({
   children,

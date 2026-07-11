@@ -1,8 +1,7 @@
+import { cx } from '../../utils/classNames'
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
 import styles from "./SearchableSelect.module.css";
-
-const cx = (...classes) => classes.filter(Boolean).join(" ");
 
 export function SearchableSelect({
   name,
@@ -16,6 +15,7 @@ export function SearchableSelect({
   disabled = false,
   loading = false,
   searchable = true,
+  ariaLabel,
 }) {
   const rootRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -56,6 +56,7 @@ export function SearchableSelect({
         disabled={disabled || loading}
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-label={ariaLabel}
         onClick={() => setOpen((current) => !current)}
         className={cx(styles.trigger, open && styles.triggerOpen)}
       >

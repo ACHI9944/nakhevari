@@ -1,3 +1,4 @@
+import { cx } from '../../utils/classNames'
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -26,8 +27,6 @@ import {
 } from "../../utils/listingFilterUnits";
 import { presentListingDetail } from "../../utils/listingPresenter";
 import styles from "./ListingDetailScreen.module.css";
-
-const cx = (...classes) => classes.filter(Boolean).join(" ");
 
 export function ListingDetail() {
   const navigate = useNavigate();

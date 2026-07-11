@@ -23,7 +23,8 @@ export function VerifyEmailPage() {
       const refreshed = await refreshUser()
       if (refreshed?.user?.emailVerified) navigate('/account')
       else setMessage(t('verify.notConfirmed'))
-    } catch {
+    } catch (error) {
+      console.error('verify-email: failed to check status', error)
       setMessage(t('verify.checkError'))
     } finally {
       setChecking(false)
@@ -33,7 +34,8 @@ export function VerifyEmailPage() {
     try {
       await resendEmailVerification()
       setMessage(t('verify.resent'))
-    } catch {
+    } catch (error) {
+      console.error('verify-email: failed to resend', error)
       setMessage(t('verify.resendError'))
     }
   }

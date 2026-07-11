@@ -1,3 +1,4 @@
+import { cx } from '../../utils/classNames'
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -8,8 +9,6 @@ import { Button } from "../Button/Button";
 import { LanguageSwitcher } from "../LanguageSwitcher/LanguageSwitcher";
 import { Logo } from "../Logo/Logo";
 import styles from "./Header.module.css";
-
-const cx = (...classes) => classes.filter(Boolean).join(" ");
 
 export function Header() {
   const [open, setOpen] = useState(false);
