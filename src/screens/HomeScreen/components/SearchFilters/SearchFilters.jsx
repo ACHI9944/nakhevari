@@ -1,231 +1,193 @@
 import { cx } from '../../../../utils/classNames'
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { CalendarDays, ChevronDown, DollarSign, Gauge, Search, SlidersHorizontal, X } from "lucide-react";
-import { useVehicleCatalog } from "../../../../hooks/useVehicleCatalog";
-import { Button, RangeFilterPopover } from "../../../../components";
-import { SearchableSelect } from "../../../../components/SearchableSelect/SearchableSelect";
-import { formGroups, localizeVehicleOptions } from "../../../../data/listingForm";
-import { listingFilterDefaults } from "../../../../utils/listingFilterParams";
-import {
-  mileageUnitLabel,
-  mileageUnitOptions,
-  priceCurrencyOptions,
-  priceCurrencySymbol,
-} from "../../../../utils/listingFilterUnits";
-import styles from "./SearchFilters.module.css";
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { CalendarDays, ChevronDown, DollarSign, Gauge, Search, SlidersHorizontal, X } from 'lucide-react'
+import { useVehicleCatalog } from '../../../../hooks/useVehicleCatalog'
+import { Button, RangeFilterPopover } from '../../../../components'
+import { SearchableSelect } from '../../../../components/SearchableSelect/SearchableSelect'
+import { listingFilterDefaults } from '../../../../utils/listingFilterParams'
+import { buildListingFilterLabels, buildVehicleOptionGroups } from '../../../../utils/listingFilterDisplay'
+import { mileageUnitOptions, priceCurrencyOptions } from '../../../../utils/listingFilterUnits'
+import styles from './SearchFilters.module.css'
+
+const advancedFieldNames = ['fuel', 'transmission', 'minMileage', 'maxMileage', 'mileageUnit', 'sellerType', 'transportStatus']
 
 export function SearchFilters({ onSearch }) {
-  const { t } = useTranslation();
-  const [makeId, setMakeId] = useState("");
-  const [q, setQ] = useState(listingFilterDefaults.q);
-  const [make, setMake] = useState(listingFilterDefaults.make);
-  const [model, setModel] = useState(listingFilterDefaults.model);
-  const [transportStatus, setTransportStatus] = useState(listingFilterDefaults.transportStatus);
-  const [minYear, setMinYear] = useState(listingFilterDefaults.minYear);
-  const [maxYear, setMaxYear] = useState(listingFilterDefaults.maxYear);
-  const [minPrice, setMinPrice] = useState(listingFilterDefaults.minPrice);
-  const [maxPrice, setMaxPrice] = useState(listingFilterDefaults.maxPrice);
-  const [priceCurrency, setPriceCurrency] = useState(listingFilterDefaults.priceCurrency);
-  const [minMileage, setMinMileage] = useState(listingFilterDefaults.minMileage);
-  const [maxMileage, setMaxMileage] = useState(listingFilterDefaults.maxMileage);
-  const [mileageUnit, setMileageUnit] = useState(listingFilterDefaults.mileageUnit);
-  const [fuel, setFuel] = useState(listingFilterDefaults.fuel);
-  const [transmission, setTransmission] = useState(listingFilterDefaults.transmission);
-  const [sellerType, setSellerType] = useState(listingFilterDefaults.sellerType);
-  const [openPopover, setOpenPopover] = useState("");
-  const [advancedOpen, setAdvancedOpen] = useState(false);
-  const { makes, models, makesLoading, modelsLoading } = useVehicleCatalog(makeId);
-  const fuelOptions = localizeVehicleOptions(formGroups[1][1].find(field => field.name === "fuel").options, t);
-  const transmissionOptions = localizeVehicleOptions(formGroups[1][1].find(field => field.name === "transmission").options, t);
-  const transportOptions = localizeVehicleOptions(formGroups[1][1].find(field => field.name === "transportStatus").options, t);
+  const { t } = useTranslation()
+  const [makeId, setMakeId] = useState('')
+  const [filters, setFilters] = useState(() => ({ ...listingFilterDefaults }))
+  const [openPopover, setOpenPopover] = useState('')
+  const [advancedOpen, setAdvancedOpen] = useState(false)
+  const { makes, models, makesLoading, modelsLoading } = useVehicleCatalog(makeId)
+  const { fuelOptions, transmissionOptions, transportOptions } = buildVehicleOptionGroups(t)
+  const { yearLabel, priceLabel, mileageLabel } = buildListingFilterLabels(filters, t)
 
-  const yearLabel = minYear || maxYear
-    ? `${minYear || t("listings.minYear")} — ${maxYear || t("listings.maxYear")}`
-    : t("filters.year");
-  const priceSymbol = priceCurrencySymbol(priceCurrency);
-  const priceLabel = minPrice || maxPrice
-    ? `${priceSymbol}${minPrice || 0} — ${maxPrice ? `${priceSymbol}${maxPrice}` : t("listings.maxPrice")}`
-    : t("filters.price");
-  const currentMileageUnit = mileageUnitLabel(mileageUnit, t);
-  const mileageLabel = minMileage || maxMileage
-    ? `${minMileage || 0} — ${maxMileage || t("listings.maxMileage")} ${currentMileageUnit}`
-    : t("listing.mileage");
+  const updateFilter = (name, value) => {
+    setFilters(current => ({ ...current, [name]: value }))
+  }
 
-  const submit = (event) => {
-    event.preventDefault();
-    onSearch?.({
-      q,
-      make,
-      model,
-      transportStatus,
-      minYear,
-      maxYear,
-      minPrice,
-      maxPrice,
-      priceCurrency,
-      minMileage,
-      maxMileage,
-      mileageUnit,
-      fuel,
-      transmission,
-      sellerType,
-    });
-  };
+  const resetAdvancedFields = () => {
+    setFilters(current => advancedFieldNames.reduce((next, name) => ({ ...next, [name]: listingFilterDefaults[name] }), current))
+  }
+
+  const submit = event => {
+    event.preventDefault()
+    onSearch?.(filters)
+  }
 
   return (
     <form onSubmit={submit} className={styles.form}>
       <div className={styles.title}>
         <Search size={18} className={styles.icon} />
-        <span className={styles.titleText}>{t("filters.title")}</span>
+        <span className={styles.titleText}>{t('filters.title')}</span>
       </div>
       <div className={styles.grid}>
         <label className={cx(styles.label, styles.keywordField)}>
-          <span className={styles.labelText}>{t("filters.keyword")}</span>
+          <span className={styles.labelText}>{t('filters.keyword')}</span>
           <input
-            value={q}
-            onChange={event => setQ(event.target.value)}
-            placeholder={t("filters.keywordPlaceholder")}
+            value={filters.q}
+            onChange={event => updateFilter('q', event.target.value)}
+            placeholder={t('filters.keywordPlaceholder')}
             className={styles.field}
           />
         </label>
         <div>
-          <span className={styles.labelText}>{t("filters.make")}</span>
+          <span className={styles.labelText}>{t('filters.make')}</span>
           <SearchableSelect
-            value={make}
-            options={makes.map((item) => ({ value: item.name, label: item.name, id: item.id }))}
+            value={filters.make}
+            options={makes.map(item => ({ value: item.name, label: item.name, id: item.id }))}
             loading={makesLoading}
-            placeholder={makesLoading ? t("filters.loadingMakes") : t("filters.allMakes")}
-            searchPlaceholder={t("filters.searchMake")}
-            emptyText={t("filters.noResults")}
-            emptyOptionLabel={t("filters.allMakes")}
+            placeholder={makesLoading ? t('filters.loadingMakes') : t('filters.allMakes')}
+            searchPlaceholder={t('filters.searchMake')}
+            emptyText={t('filters.noResults')}
+            emptyOptionLabel={t('filters.allMakes')}
             onChange={(value, option) => {
-              setMake(value);
-              setMakeId(option?.id ? String(option.id) : "");
-              setModel("");
+              updateFilter('make', value)
+              setMakeId(option?.id ? String(option.id) : '')
+              updateFilter('model', '')
             }}
           />
         </div>
         <div>
-          <span className={styles.labelText}>{t("filters.model")}</span>
+          <span className={styles.labelText}>{t('filters.model')}</span>
           <SearchableSelect
-            value={model}
+            value={filters.model}
             options={models}
             disabled={!makeId}
             loading={modelsLoading}
             placeholder={
               modelsLoading
-                ? t("filters.loadingModels")
+                ? t('filters.loadingModels')
                 : makeId
-                  ? t("filters.allModels")
-                  : t("filters.selectMakeFirst")
+                  ? t('filters.allModels')
+                  : t('filters.selectMakeFirst')
             }
-            searchPlaceholder={t("filters.searchModel")}
-            emptyText={t("filters.noResults")}
-            emptyOptionLabel={t("filters.allModels")}
-            onChange={setModel}
+            searchPlaceholder={t('filters.searchModel')}
+            emptyText={t('filters.noResults')}
+            emptyOptionLabel={t('filters.allModels')}
+            onChange={value => updateFilter('model', value)}
           />
         </div>
         <RangeFilterPopover
           name="year"
-          label={t("filters.year")}
+          label={t('filters.year')}
           value={yearLabel}
-          open={openPopover === "year"}
-          onToggle={() => setOpenPopover(openPopover === "year" ? "" : "year")}
-          onApply={() => setOpenPopover("")}
+          open={openPopover === 'year'}
+          onToggle={() => setOpenPopover(openPopover === 'year' ? '' : 'year')}
+          onApply={() => setOpenPopover('')}
           icon={<CalendarDays size={18} />}
-          minValue={minYear}
-          maxValue={maxYear}
-          minPlaceholder={t("listings.minYear")}
-          maxPlaceholder={t("listings.maxYear")}
-          onMinChange={setMinYear}
-          onMaxChange={setMaxYear}
+          minValue={filters.minYear}
+          maxValue={filters.maxYear}
+          minPlaceholder={t('listings.minYear')}
+          maxPlaceholder={t('listings.maxYear')}
+          onMinChange={value => updateFilter('minYear', value)}
+          onMaxChange={value => updateFilter('maxYear', value)}
           size="large"
         />
         <RangeFilterPopover
           name="price"
-          label={t("filters.price")}
+          label={t('filters.price')}
           value={priceLabel}
-          open={openPopover === "price"}
-          onToggle={() => setOpenPopover(openPopover === "price" ? "" : "price")}
-          onApply={() => setOpenPopover("")}
-          icon={priceCurrency === "gel" ? <span aria-hidden="true">₾</span> : <DollarSign size={19} />}
-          minValue={minPrice}
-          maxValue={maxPrice}
-          minPlaceholder={t("listings.minPrice")}
-          maxPlaceholder={t("listings.maxPrice")}
-          onMinChange={setMinPrice}
-          onMaxChange={setMaxPrice}
+          open={openPopover === 'price'}
+          onToggle={() => setOpenPopover(openPopover === 'price' ? '' : 'price')}
+          onApply={() => setOpenPopover('')}
+          icon={filters.priceCurrency === 'gel' ? <span aria-hidden="true">₾</span> : <DollarSign size={19} />}
+          minValue={filters.minPrice}
+          maxValue={filters.maxPrice}
+          minPlaceholder={t('listings.minPrice')}
+          maxPlaceholder={t('listings.maxPrice')}
+          onMinChange={value => updateFilter('minPrice', value)}
+          onMaxChange={value => updateFilter('maxPrice', value)}
           unitOptions={priceCurrencyOptions}
-          unitValue={priceCurrency}
-          onUnitChange={setPriceCurrency}
+          unitValue={filters.priceCurrency}
+          onUnitChange={value => updateFilter('priceCurrency', value)}
           size="large"
         />
         <button type="button" onClick={() => setAdvancedOpen(true)} className={styles.advancedButton}>
           <span className={styles.advancedIcon}><SlidersHorizontal size={17} /></span>
-          <span className={styles.advancedText}>{t("listings.advanced")}</span>
+          <span className={styles.advancedText}>{t('listings.advanced')}</span>
         </button>
         <Button type="submit" className={styles.submit}>
-          {t("common.search")}
+          {t('common.search')}
         </Button>
       </div>
       {advancedOpen && <div className={styles.modalOverlay} role="presentation" onMouseDown={() => setAdvancedOpen(false)}>
         <section className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="advanced-filters-title" onMouseDown={event => event.stopPropagation()}>
           <div className={styles.modalHeader}>
-            <h2 id="advanced-filters-title" className={styles.modalTitle}>{t("listings.advanced")}</h2>
-            <button type="button" onClick={() => setAdvancedOpen(false)} className={styles.closeButton} aria-label={t("common.back")}><X size={22} /></button>
+            <h2 id="advanced-filters-title" className={styles.modalTitle}>{t('listings.advanced')}</h2>
+            <button type="button" onClick={() => setAdvancedOpen(false)} className={styles.closeButton} aria-label={t('common.back')}><X size={22} /></button>
           </div>
           <div className={styles.modalBody}>
             <section>
-              <h3 className={styles.modalSectionTitle}>{t("listings.vehicleInfo")}</h3>
+              <h3 className={styles.modalSectionTitle}>{t('listings.vehicleInfo')}</h3>
               <div className={styles.modalGrid}>
                 <label className={styles.label}>
-                  <span className={styles.labelText}>{t("listing.fuel")}</span>
-                  <select value={fuel} onChange={event => setFuel(event.target.value)} className={cx(styles.field, styles.select)}>
-                    <option value="">{t("listings.anyFuel")}</option>
+                  <span className={styles.labelText}>{t('listing.fuel')}</span>
+                  <select value={filters.fuel} onChange={event => updateFilter('fuel', event.target.value)} className={cx(styles.field, styles.select)}>
+                    <option value="">{t('listings.anyFuel')}</option>
                     {fuelOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
                   </select>
                   <ChevronDown size={15} className={styles.selectIcon} />
                 </label>
                 <label className={styles.label}>
-                  <span className={styles.labelText}>{t("listing.transmission")}</span>
-                  <select value={transmission} onChange={event => setTransmission(event.target.value)} className={cx(styles.field, styles.select)}>
-                    <option value="">{t("listings.anyTransmission")}</option>
+                  <span className={styles.labelText}>{t('listing.transmission')}</span>
+                  <select value={filters.transmission} onChange={event => updateFilter('transmission', event.target.value)} className={cx(styles.field, styles.select)}>
+                    <option value="">{t('listings.anyTransmission')}</option>
                     {transmissionOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
                   </select>
                   <ChevronDown size={15} className={styles.selectIcon} />
                 </label>
                 <RangeFilterPopover
-                  label={t("listing.mileage")}
+                  label={t('listing.mileage')}
                   value={mileageLabel}
-                  open={openPopover === "mileage"}
-                  onToggle={() => setOpenPopover(openPopover === "mileage" ? "" : "mileage")}
-                  onApply={() => setOpenPopover("")}
+                  open={openPopover === 'mileage'}
+                  onToggle={() => setOpenPopover(openPopover === 'mileage' ? '' : 'mileage')}
+                  onApply={() => setOpenPopover('')}
                   icon={<Gauge size={18} />}
-                  minValue={minMileage}
-                  maxValue={maxMileage}
-                  minPlaceholder={t("listings.minMileage")}
-                  maxPlaceholder={t("listings.maxMileage")}
-                  onMinChange={setMinMileage}
-                  onMaxChange={setMaxMileage}
+                  minValue={filters.minMileage}
+                  maxValue={filters.maxMileage}
+                  minPlaceholder={t('listings.minMileage')}
+                  maxPlaceholder={t('listings.maxMileage')}
+                  onMinChange={value => updateFilter('minMileage', value)}
+                  onMaxChange={value => updateFilter('maxMileage', value)}
                   unitOptions={mileageUnitOptions}
-                  unitValue={mileageUnit}
-                  onUnitChange={setMileageUnit}
+                  unitValue={filters.mileageUnit}
+                  onUnitChange={value => updateFilter('mileageUnit', value)}
                   size="large"
                 />
                 <label className={styles.label}>
-                  <span className={styles.labelText}>{t("add.sellerType")}</span>
-                  <select value={sellerType} onChange={event => setSellerType(event.target.value)} className={cx(styles.field, styles.select)}>
-                    <option value="">{t("listings.anySeller")}</option>
-                    <option value="individual">{t("common.individual")}</option>
-                    <option value="company">{t("common.company")}</option>
+                  <span className={styles.labelText}>{t('add.sellerType')}</span>
+                  <select value={filters.sellerType} onChange={event => updateFilter('sellerType', event.target.value)} className={cx(styles.field, styles.select)}>
+                    <option value="">{t('listings.anySeller')}</option>
+                    <option value="individual">{t('common.individual')}</option>
+                    <option value="company">{t('common.company')}</option>
                   </select>
                   <ChevronDown size={15} className={styles.selectIcon} />
                 </label>
                 <label className={styles.label}>
-                  <span className={styles.labelText}>{t("listings.transportStatus")}</span>
-                  <select value={transportStatus} onChange={event => setTransportStatus(event.target.value)} className={cx(styles.field, styles.select)}>
-                    <option value="">{t("listings.anyStatus")}</option>
+                  <span className={styles.labelText}>{t('listings.transportStatus')}</span>
+                  <select value={filters.transportStatus} onChange={event => updateFilter('transportStatus', event.target.value)} className={cx(styles.field, styles.select)}>
+                    <option value="">{t('listings.anyStatus')}</option>
                     {transportOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
                   </select>
                   <ChevronDown size={15} className={styles.selectIcon} />
@@ -234,19 +196,11 @@ export function SearchFilters({ onSearch }) {
             </section>
           </div>
           <div className={styles.modalFooter}>
-            <button type="button" onClick={() => {
-              setFuel(listingFilterDefaults.fuel);
-              setTransmission(listingFilterDefaults.transmission);
-              setMinMileage(listingFilterDefaults.minMileage);
-              setMaxMileage(listingFilterDefaults.maxMileage);
-              setMileageUnit(listingFilterDefaults.mileageUnit);
-              setSellerType(listingFilterDefaults.sellerType);
-              setTransportStatus(listingFilterDefaults.transportStatus);
-            }} className={styles.clearButton}>{t("listings.reset")}</button>
-            <Button type="button" onClick={() => setAdvancedOpen(false)} className={styles.modalApply}>{t("listings.apply")}</Button>
+            <button type="button" onClick={resetAdvancedFields} className={styles.clearButton}>{t('listings.reset')}</button>
+            <Button type="button" onClick={() => setAdvancedOpen(false)} className={styles.modalApply}>{t('listings.apply')}</Button>
           </div>
         </section>
       </div>}
     </form>
-  );
+  )
 }

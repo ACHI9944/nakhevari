@@ -26,6 +26,11 @@ export default [
     rules: {
       'no-unused-vars': ['warn', { argsIgnorePattern: '^[A-Z_]', varsIgnorePattern: '^[A-Z_]' }],
       'react-refresh/only-export-components': 'off',
+      // Codifies this repo's existing convention (single-quoted JS strings, no
+      // semicolons, JSX attributes left double-quoted) so it can't silently drift
+      // again the way it did across several files before this rule was added.
+      quotes: ['error', 'single', { avoidEscape: true }],
+      semi: ['error', 'never'],
     },
   },
   {

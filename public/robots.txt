@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /admin
+Disallow: /account
+Disallow: /add
+Disallow: /auth
+Disallow: /verify-email
+Disallow: /complete-profile
+Allow: /
+
+Sitemap: https://nakhevari-ge.web.app/sitemap.xml

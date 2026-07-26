@@ -1,5 +1,5 @@
 import { cx } from '../../../../utils/classNames'
-import styles from "./SectionTitle.module.css";
+import styles from './SectionTitle.module.css'
 
 export function SectionTitle({ eyebrow, title, text, center = false }) {
   return (
@@ -8,5 +8,5 @@ export function SectionTitle({ eyebrow, title, text, center = false }) {
       <h2 className={styles.heading}>{title}</h2>
       {text && <p className={styles.text}>{text}</p>}
     </div>
-  );
+  )
 }

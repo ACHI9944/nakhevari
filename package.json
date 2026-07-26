@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run typecheck && vite build",
+    "postbuild": "node scripts/sync-spa-shell.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
     "check:listing-search": "node scripts/check-listing-search.js",
     "test": "vitest run tests/utils",
-    "test:rules": "firebase emulators:exec --only firestore \"vitest run tests/rules\"",
-    "test:all": "npm run test && npm run test:rules",
+    "test:rules": "firebase emulators:exec --only firestore,storage \"vitest run tests/rules\"",
+    "test:functions": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 GCLOUD_PROJECT=nakhevari-functions-test firebase emulators:exec --only firestore,auth \"vitest run tests/functions\"",
+    "test:all": "npm run test && npm run test:rules && npm run test:functions",
     "preview": "vite preview"
   },
   "dependencies": {

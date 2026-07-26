@@ -1,26 +1,26 @@
-import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
-import { en, ka } from "./resources";
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
+import { en, ka } from './resources'
 
-export const supportedLanguages = ["ka", "en"];
-const savedLanguage = localStorage.getItem("selectedLanguage");
+export const supportedLanguages = ['ka', 'en']
+const savedLanguage = localStorage.getItem('selectedLanguage')
 const initialLanguage = supportedLanguages.includes(savedLanguage)
   ? savedLanguage
-  : "ka";
+  : 'ka'
 
 i18n.use(initReactI18next).init({
   resources: { ka: { common: ka }, en: { common: en } },
   lng: initialLanguage,
-  fallbackLng: "en",
-  defaultNS: "common",
+  fallbackLng: 'en',
+  defaultNS: 'common',
   interpolation: { escapeValue: false },
-});
+})
 
-i18n.on("languageChanged", (language) => {
-  localStorage.setItem("selectedLanguage", language);
-  document.documentElement.lang = language;
-});
+i18n.on('languageChanged', (language) => {
+  localStorage.setItem('selectedLanguage', language)
+  document.documentElement.lang = language
+})
 
-document.documentElement.lang = initialLanguage;
+document.documentElement.lang = initialLanguage
 
-export default i18n;
+export default i18n

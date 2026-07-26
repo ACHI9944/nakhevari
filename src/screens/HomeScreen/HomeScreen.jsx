@@ -1,19 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useEffect, useMemo, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   ArrowDownRight,
-  ArrowRight,
   Check,
   Clock3,
   Sparkles,
-} from "lucide-react";
+} from 'lucide-react'
 import {
   Button,
   Footer,
   Header,
-} from "../../components";
+} from '../../components'
 import {
   CarCard,
   HowItWorks,
@@ -21,24 +20,24 @@ import {
   SectionTitle,
   TrustCard,
   trustItems,
-} from "./components";
-import { fetchPublishedListings } from "../../store/listingsSlice";
-import { carPlaceholderImage } from "../../data/assets";
-import { listingFiltersToSearchParams } from "../../utils/listingFilterParams";
-import { presentListingCard } from "../../utils/listingPresenter";
-import styles from "./HomeScreen.module.css";
+} from './components'
+import { fetchPublishedListings } from '../../store/listingsSlice'
+import { carPlaceholderImage } from '../../data/assets'
+import { listingFiltersToSearchParams } from '../../utils/listingFilterParams'
+import { presentListingCard } from '../../utils/listingPresenter'
+import styles from './HomeScreen.module.css'
 
 export function Home() {
-  const navigate = useNavigate();
-  const { t } = useTranslation();
-  const dispatch = useDispatch();
-  const { items, status } = useSelector((state) => state.listings.published);
-  const [catalogFilters, setCatalogFilters] = useState({ make: "", model: "" });
-  const listingsLoading = status === "idle" || status === "loading";
+  const navigate = useNavigate()
+  const { t } = useTranslation()
+  const dispatch = useDispatch()
+  const { items, status } = useSelector((state) => state.listings.published)
+  const [catalogFilters, setCatalogFilters] = useState({ make: '', model: '' })
+  const listingsLoading = status === 'idle' || status === 'loading'
   const publishedCars = useMemo(
     () => items.map((item) => presentListingCard(item, t)),
     [items, t],
-  );
+  )
   const filteredCars = useMemo(
     () =>
       publishedCars.filter(
@@ -47,16 +46,16 @@ export function Home() {
           (!catalogFilters.model || car.model === catalogFilters.model),
       ),
     [catalogFilters, publishedCars],
-  );
+  )
   useEffect(() => {
-    dispatch(fetchPublishedListings());
-  }, [dispatch]);
+    dispatch(fetchPublishedListings())
+  }, [dispatch])
 
   const searchListings = filters => {
-    setCatalogFilters(filters);
-    const params = listingFiltersToSearchParams(filters);
-    navigate(`/listings${params.toString() ? `?${params.toString()}` : ""}`);
-  };
+    setCatalogFilters(filters)
+    const params = listingFiltersToSearchParams(filters)
+    navigate(`/listings${params.toString() ? `?${params.toString()}` : ''}`)
+  }
 
   return (
     <>
@@ -66,43 +65,43 @@ export function Home() {
           <div className={styles.heroGrid}>
             <div className={styles.heroContent}>
               <span className={styles.heroBadge}>
-                <Sparkles size={14} /> {t("home.badge")}
+                <Sparkles size={14} /> {t('home.badge')}
               </span>
               <h1 className={styles.heroTitle}>
-                {t("home.title")}{" "}
+                {t('home.title')}{' '}
                 <span className={styles.brandText}>
-                  {t("home.titleAccent")}
+                  {t('home.titleAccent')}
                 </span>
               </h1>
-              <p className={styles.heroDescription}>{t("home.description")}</p>
+              <p className={styles.heroDescription}>{t('home.description')}</p>
               <div className={styles.heroActions}>
                 <Button
                   onClick={() =>
-                    document.querySelector("#listings").scrollIntoView()
+                    document.querySelector('#listings').scrollIntoView()
                   }
                 >
-                  {t("home.viewListings")} <ArrowDownRight size={17} />
+                  {t('home.viewListings')} <ArrowDownRight size={17} />
                 </Button>
                 <Button
                   variant="dark"
-                  onClick={() => navigate("/add")}
+                  onClick={() => navigate('/add')}
                   className={styles.heroSecondaryButton}
                 >
-                  {t("nav.add")}
+                  {t('nav.add')}
                 </Button>
               </div>
               <div className={styles.heroBenefits}>
                 <span className={styles.heroBenefit}>
-                  <Check size={15} className={styles.heroBenefitIcon} />{" "}
-                  {t("home.verified")}
+                  <Check size={15} className={styles.heroBenefitIcon} />{' '}
+                  {t('home.verified')}
                 </span>
                 <span className={styles.heroBenefit}>
-                  <Check size={15} className={styles.heroBenefitIcon} />{" "}
-                  {t("home.direct")}
+                  <Check size={15} className={styles.heroBenefitIcon} />{' '}
+                  {t('home.direct')}
                 </span>
                 <span className={styles.heroBenefit}>
-                  <Check size={15} className={styles.heroBenefitIcon} />{" "}
-                  {t("home.noFees")}
+                  <Check size={15} className={styles.heroBenefitIcon} />{' '}
+                  {t('home.noFees')}
                 </span>
               </div>
             </div>
@@ -112,26 +111,26 @@ export function Home() {
                 <div className={styles.heroImageFrame}>
                   <img
                     src={carPlaceholderImage}
-                    alt={t("home.carAlt")}
+                    alt={t('home.carAlt')}
                     className={styles.heroImage}
                   />
                   <div className={styles.heroImageFade} />
                   <span className={styles.heroStatus}>
-                    {t("home.inTransit")}
+                    {t('home.inTransit')}
                   </span>
                   <div className={styles.heroOverlay}>
                     <div className={styles.heroOverlayRow}>
                       <div>
                         <p className={styles.heroCompare}>
-                          {t("home.compare")}
+                          {t('home.compare')}
                         </p>
                         <p className={styles.heroPrice}>
-                          {t("home.rightPrice")}
+                          {t('home.rightPrice')}
                         </p>
                       </div>
                       <span className={styles.heroUpdated}>
-                        <Clock3 size={13} className={styles.heroUpdatedIcon} />{" "}
-                        {t("home.updated")}
+                        <Clock3 size={13} className={styles.heroUpdatedIcon} />{' '}
+                        {t('home.updated')}
                       </span>
                     </div>
                   </div>
@@ -146,13 +145,13 @@ export function Home() {
         <section id="listings" className={styles.listingsSection}>
           <div className={styles.sectionHeaderRow}>
             <SectionTitle
-              eyebrow={t("home.latestEyebrow")}
-              title={t("home.latestTitle")}
-              text={t("home.latestText")}
+              eyebrow={t('home.latestEyebrow')}
+              title={t('home.latestTitle')}
+              text={t('home.latestText')}
             />
           </div>
           {listingsLoading ? (
-            <div className={styles.loadingBox}>{t("home.loadingListings")}</div>
+            <div className={styles.loadingBox}>{t('home.loadingListings')}</div>
           ) : filteredCars.length ? (
             <div className={styles.listingsGrid}>
               {filteredCars.slice(0, 6).map((car) => (
@@ -161,13 +160,13 @@ export function Home() {
             </div>
           ) : (
             <div className={styles.emptyState}>
-              <h3 className={styles.emptyTitle}>{t("home.emptyTitle")}</h3>
-              <p className={styles.emptyText}>{t("home.emptyText")}</p>
+              <h3 className={styles.emptyTitle}>{t('home.emptyTitle')}</h3>
+              <p className={styles.emptyText}>{t('home.emptyText')}</p>
               <Button
-                onClick={() => navigate("/add")}
+                onClick={() => navigate('/add')}
                 className={styles.emptyAction}
               >
-                {t("nav.add")}
+                {t('nav.add')}
               </Button>
             </div>
           )}
@@ -175,9 +174,9 @@ export function Home() {
         <section className={styles.mutedSection}>
           <div className={styles.sectionContainer}>
             <SectionTitle
-              eyebrow={t("home.process")}
-              title={t("home.howTitle")}
-              text={t("home.howText")}
+              eyebrow={t('home.process')}
+              title={t('home.howTitle')}
+              text={t('home.howText')}
               center
             />
             <HowItWorks />
@@ -187,20 +186,20 @@ export function Home() {
           <div className={styles.brandGrid}>
             <div>
               <SectionTitle
-                eyebrow={t("brandIdea.eyebrow")}
-                title={t("brandIdea.title")}
-                text={t("brandIdea.text")}
+                eyebrow={t('brandIdea.eyebrow')}
+                title={t('brandIdea.title')}
+                text={t('brandIdea.text')}
               />
-              <p className={styles.brandMission}>{t("brandIdea.mission")}</p>
+              <p className={styles.brandMission}>{t('brandIdea.mission')}</p>
             </div>
             <div className={styles.priceCard}>
               <p className={styles.priceCardLabel}>
-                {t("brandIdea.sameClass")}
+                {t('brandIdea.sameClass')}
               </p>
               <div className={styles.marketBox}>
                 <div className={styles.priceRow}>
                   <span className={styles.marketLabel}>
-                    {t("brandIdea.localMarket")}
+                    {t('brandIdea.localMarket')}
                   </span>
                   <span className={styles.priceStrong}>$20,900</span>
                 </div>
@@ -210,11 +209,11 @@ export function Home() {
               </div>
               <div className={styles.offerBox}>
                 <span className={styles.offerBadge}>
-                  {t("brandIdea.smartOffer")}
+                  {t('brandIdea.smartOffer')}
                 </span>
                 <div className={styles.priceRow}>
                   <span className={styles.offerLabel}>
-                    {t("brandIdea.inTransit")}
+                    {t('brandIdea.inTransit')}
                   </span>
                   <span className={styles.offerPrice}>$16,400</span>
                 </div>
@@ -224,19 +223,19 @@ export function Home() {
               </div>
               <div className={styles.savingsRow}>
                 <span className={styles.savingsLabel}>
-                  {t("brandIdea.saving")}
+                  {t('brandIdea.saving')}
                 </span>
                 <span className={styles.savingsValue}>$4,500 • 22%</span>
               </div>
             </div>
-            <p className={styles.disclaimer}>{t("brandIdea.disclaimer")}</p>
+            <p className={styles.disclaimer}>{t('brandIdea.disclaimer')}</p>
           </div>
         </section>
         <section className={styles.mutedSection}>
           <div className={styles.sectionContainer}>
             <SectionTitle
-              eyebrow={t("trust.eyebrow")}
-              title={t("trust.title")}
+              eyebrow={t('trust.eyebrow')}
+              title={t('trust.title')}
               center
             />
             <div className={styles.trustGrid}>
@@ -251,23 +250,8 @@ export function Home() {
             </div>
           </div>
         </section>
-        <section id="companies" className={styles.companiesSection}>
-          <div className={styles.companiesCard}>
-            <div className={styles.companiesGlow} />
-            <div className={styles.companiesContent}>
-              <span className={styles.companiesEyebrow}>
-                {t("companies.eyebrow")}
-              </span>
-              <h2 className={styles.companiesTitle}>{t("companies.title")}</h2>
-              <p className={styles.companiesText}>{t("companies.text")}</p>
-              <Button className={styles.companiesAction}>
-                {t("companies.cta")} <ArrowRight size={17} />
-              </Button>
-            </div>
-          </div>
-        </section>
       </main>
       <Footer />
     </>
-  );
+  )
 }

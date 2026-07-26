@@ -1,6 +1,5 @@
 import {
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -8,9 +7,9 @@ import {
   orderBy,
   query,
   serverTimestamp,
-  setDoc,
   startAfter,
   where,
+  writeBatch,
 } from 'firebase/firestore'
 import { deleteObject, getDownloadURL, listAll, ref, uploadBytes } from 'firebase/storage'
 import { db, storage } from '../../config/firebase'
@@ -30,7 +29,6 @@ const filterFields = ['make', 'model', 'fuel', 'transmission', 'transportStatus'
 const searchFields = [
   ['vinSearch', normalizeVinSearchText],
   ['makeModelSearch', normalizeListingSearchText],
-  ['sellerSearch', normalizeListingSearchText],
 ]
 
 const photoExtension = file => file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg'
@@ -62,8 +60,8 @@ const normalizeListingQuery = options => ({
 const listingQueryKey = request => JSON.stringify(request)
 
 const sortConstraints = sort => {
-  if (sort === 'priceAsc') return [orderBy('price', 'asc'), orderBy('createdAt', 'desc')]
-  if (sort === 'priceDesc') return [orderBy('price', 'desc'), orderBy('createdAt', 'desc')]
+  if (sort === 'priceAsc') return [orderBy('publicPrice', 'asc'), orderBy('createdAt', 'desc')]
+  if (sort === 'priceDesc') return [orderBy('publicPrice', 'desc'), orderBy('createdAt', 'desc')]
   if (sort === 'yearDesc') return [orderBy('year', 'desc'), orderBy('createdAt', 'desc')]
   if (sort === 'mileageAsc') return [orderBy('mileage', 'asc'), orderBy('createdAt', 'desc')]
   return [orderBy('createdAt', 'desc')]
@@ -76,7 +74,7 @@ const inRange = (value, min, max) => {
 }
 
 const matchesRangeFilters = (listing, filters) => (
-  inRange(listing.price, filters.minPrice, filters.maxPrice)
+  inRange(listing.publicPrice, filters.minPrice, filters.maxPrice)
   && inRange(listing.year, filters.minYear, filters.maxYear)
   && inRange(listing.mileage, filters.minMileage, filters.maxMileage)
 )
@@ -104,8 +102,8 @@ const matchesTextSearch = (listing, term) => {
 }
 
 const sortPublishedListings = (items, sort) => [...items].sort((a, b) => {
-  if (sort === 'priceAsc') return Number(a.price) - Number(b.price)
-  if (sort === 'priceDesc') return Number(b.price) - Number(a.price)
+  if (sort === 'priceAsc') return Number(a.publicPrice) - Number(b.publicPrice)
+  if (sort === 'priceDesc') return Number(b.publicPrice) - Number(a.publicPrice)
   if (sort === 'yearDesc') return Number(b.year) - Number(a.year)
   if (sort === 'mileageAsc') return Number(a.mileage) - Number(b.mileage)
   return (b.createdAt || 0) - (a.createdAt || 0)
@@ -202,6 +200,7 @@ export async function createListing(data, user, photos = [], profile = null) {
   const uploadedPhotos = []
   const isVerifiedCompany = profile?.accountType === 'company'
     && profile.companyVerificationStatus === 'verified'
+  const { price, sellerName, phone, ...publicFields } = data
 
   try {
     const uploads = await Promise.allSettled(photos.map(async (file, index) => {
@@ -215,17 +214,13 @@ export async function createListing(data, user, photos = [], profile = null) {
     const failedUpload = uploads.find(result => result.status === 'rejected')
     if (failedUpload) throw failedUpload.reason
 
-    const payload = {
-      ...data,
+    const publicPayload = {
+      ...publicFields,
       year: Number(data.year),
-      price: Number(data.price),
       mileage: Number(data.mileage),
-      companyName: isVerifiedCompany ? profile.companyName || '' : '',
-      companyVerificationStatus: isVerifiedCompany ? 'verified' : 'not_required',
       ownerId: user.uid,
-      ownerEmail: user.email || '',
       status: 'pending',
-      schemaVersion: 1,
+      schemaVersion: 2,
       image: uploadedPhotos[0].url,
       images: uploadedPhotos.map(photo => photo.url),
       imagePath: uploadedPhotos[0].path,
@@ -233,8 +228,26 @@ export async function createListing(data, user, photos = [], profile = null) {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     }
-    Object.assign(payload, buildListingSearchFields(payload))
-    await setDoc(reference, payload)
+    Object.assign(publicPayload, buildListingSearchFields(publicPayload))
+
+    // Seller-identifying data and the seller's own asking price stay off the
+    // public doc entirely, in a subcollection only the owner/admins can read.
+    const sellerInfoPayload = {
+      ownerId: user.uid,
+      sellerName,
+      phone,
+      sellerPrice: Number(price),
+      ownerEmail: user.email || '',
+      companyVerificationStatus: isVerifiedCompany ? 'verified' : 'not_required',
+      ...(isVerifiedCompany ? { companyName: profile.companyName || '' } : {}),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    }
+
+    const batch = writeBatch(db)
+    batch.set(reference, publicPayload)
+    batch.set(doc(reference, 'private', 'sellerInfo'), sellerInfoPayload)
+    await batch.commit()
     return reference.id
   } catch (error) {
     await Promise.allSettled(uploadedPhotos.map(photo => deleteObject(ref(storage, photo.path))))
@@ -242,9 +255,23 @@ export async function createListing(data, user, photos = [], profile = null) {
   }
 }
 
+async function withSellerInfo(listings) {
+  const snapshots = await Promise.all(
+    listings.map(listing => getDoc(doc(db, 'listings', listing.id, 'private', 'sellerInfo'))),
+  )
+  return listings.map((listing, index) => {
+    if (!snapshots[index].exists()) return listing
+    const { ownerId: _ownerId, createdAt: _createdAt, updatedAt: _updatedAt, ...sellerInfo } = snapshots[index].data()
+    return { ...listing, ...sellerInfo }
+  })
+}
+
 export async function getMyListings(userId) {
   const snapshot = await getDocs(query(listingsRef, where('ownerId', '==', userId)))
-  return snapshot.docs.map(mapListing).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+  const listings = await withSellerInfo(snapshot.docs.map(mapListing))
+  return listings
+    .map(listing => ({ ...listing, price: listing.sellerPrice }))
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
 }
 
 export async function getPublishedListings(options = {}) {
@@ -330,7 +357,8 @@ export async function getAdminListings(status = 'pending') {
     ? query(listingsRef, limit(adminListingsFetchCap))
     : query(listingsRef, where('status', '==', status), limit(adminListingsFetchCap))
   const snapshot = await getDocs(listingsQuery)
-  return snapshot.docs.map(mapListing).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+  const listings = await withSellerInfo(snapshot.docs.map(mapListing))
+  return listings.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
 }
 
 export async function getListingById(listingId) {
@@ -347,5 +375,8 @@ export async function removeListing(listingId) {
     const photos = await listAll(listingPhotosRef)
     await Promise.all(photos.items.map(deleteObject))
   }
-  await deleteDoc(doc(db, 'listings', listingId))
+  const batch = writeBatch(db)
+  batch.delete(doc(db, 'listings', listingId))
+  batch.delete(doc(db, 'listings', listingId, 'private', 'sellerInfo'))
+  await batch.commit()
 }

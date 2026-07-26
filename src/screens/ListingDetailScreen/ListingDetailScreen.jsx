@@ -1,9 +1,8 @@
 import { cx } from '../../utils/classNames'
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useMemo, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   ArrowLeft,
-  BadgeCheck,
   CalendarDays,
   Clock3,
   Fuel,
@@ -15,60 +14,60 @@ import {
   Sparkles,
   UserRound,
   Zap,
-} from "lucide-react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { Button, Footer, Header } from "../../components";
-import { useUsdGelRate } from "../../hooks/useUsdGelRate";
-import { fetchListing } from "../../store/listingsSlice";
+} from 'lucide-react'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { Button, Footer, Header } from '../../components'
+import { useUsdGelRate } from '../../hooks/useUsdGelRate'
+import { fetchListing } from '../../store/listingsSlice'
 import {
   normalizePriceCurrency,
   priceCurrencyOptions,
-} from "../../utils/listingFilterUnits";
-import { presentListingDetail } from "../../utils/listingPresenter";
-import styles from "./ListingDetailScreen.module.css";
+} from '../../utils/listingFilterUnits'
+import { presentListingDetail } from '../../utils/listingPresenter'
+import styles from './ListingDetailScreen.module.css'
 
 export function ListingDetail() {
-  const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { id } = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const dispatch = useDispatch();
-  const listing = useSelector(state => state.listings.details.byId[id]);
-  const [selectedImage, setSelectedImage] = useState('');
-  const status = useSelector(state => state.listings.details.statusById[id] || 'idle');
-  const car = useMemo(() => listing ? presentListingDetail(listing, t) : null, [listing, t]);
-  const currency = normalizePriceCurrency(searchParams.get('currency'));
-  const { rate: gelPerUsd } = useUsdGelRate();
-  const loading = status === 'idle' || status === 'loading';
-  const error = status === 'failed' ? t('listing.loadError') : t('listing.notFound');
-  const activeImage = car?.images.includes(selectedImage) ? selectedImage : car?.images[0];
-  const safeGelPerUsd = Number.isFinite(Number(gelPerUsd)) && Number(gelPerUsd) > 0 ? Number(gelPerUsd) : 1;
-  const currencySymbol = currency === 'gel' ? '₾' : '$';
-  const priceValue = car ? (currency === 'gel' ? Math.round(car.price * safeGelPerUsd) : car.price) : 0;
-  const marketValue = car ? (currency === 'gel' ? Math.round(car.market * safeGelPerUsd) : car.market) : 0;
-  const savingValue = Math.max(marketValue - priceValue, 0);
-  const formatMoney = value => `${currencySymbol}${Number(value || 0).toLocaleString()}`;
+  const navigate = useNavigate()
+  const { t } = useTranslation()
+  const { id } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const dispatch = useDispatch()
+  const listing = useSelector(state => state.listings.details.byId[id])
+  const [selectedImage, setSelectedImage] = useState('')
+  const status = useSelector(state => state.listings.details.statusById[id] || 'idle')
+  const car = useMemo(() => listing ? presentListingDetail(listing, t) : null, [listing, t])
+  const currency = normalizePriceCurrency(searchParams.get('currency'))
+  const { rate: gelPerUsd } = useUsdGelRate()
+  const loading = status === 'idle' || status === 'loading'
+  const error = status === 'failed' ? t('listing.loadError') : t('listing.notFound')
+  const activeImage = car?.images.includes(selectedImage) ? selectedImage : car?.images[0]
+  const safeGelPerUsd = Number.isFinite(Number(gelPerUsd)) && Number(gelPerUsd) > 0 ? Number(gelPerUsd) : 1
+  const currencySymbol = currency === 'gel' ? '₾' : '$'
+  const priceValue = car ? (currency === 'gel' ? Math.round(car.price * safeGelPerUsd) : car.price) : 0
+  const marketValue = car ? (currency === 'gel' ? Math.round(car.market * safeGelPerUsd) : car.market) : 0
+  const savingValue = Math.max(marketValue - priceValue, 0)
+  const formatMoney = value => `${currencySymbol}${Number(value || 0).toLocaleString()}`
   const setCurrency = nextCurrency => {
-    const nextParams = new URLSearchParams(searchParams);
-    if (nextCurrency === 'gel') nextParams.set('currency', 'gel');
-    else nextParams.delete('currency');
-    setSearchParams(nextParams, { replace: true });
-  };
+    const nextParams = new URLSearchParams(searchParams)
+    if (nextCurrency === 'gel') nextParams.set('currency', 'gel')
+    else nextParams.delete('currency')
+    setSearchParams(nextParams, { replace: true })
+  }
 
   useEffect(() => {
-    dispatch(fetchListing(id));
-  }, [dispatch, id]);
+    dispatch(fetchListing(id))
+  }, [dispatch, id])
 
   if (loading || !car) {
-    return <><Header /><main className={styles.stateMain}><div><h1 className={styles.stateTitle}>{loading ? t('common.loading') : error}</h1>{!loading && <Button onClick={() => navigate("/#listings")} className={styles.stateButton}>{t('listing.back')}</Button>}</div></main><Footer /></>;
+    return <><Header /><main className={styles.stateMain}><div><h1 className={styles.stateTitle}>{loading ? t('common.loading') : error}</h1>{!loading && <Button onClick={() => navigate('/#listings')} className={styles.stateButton}>{t('listing.back')}</Button>}</div></main><Footer /></>
   }
   return (
     <>
       <Header />
       <main className={cx(styles.container, styles.main)}>
         <button
-          onClick={() => navigate("/#listings")}
+          onClick={() => navigate('/#listings')}
           className={styles.backButton}
         >
           <ArrowLeft size={17} /> {t('listing.back')}
@@ -116,7 +115,7 @@ export function ListingDetail() {
                 {formatMoney(priceValue)}
               </p>
               <p className={styles.market}>
-                {t('listing.market')} ≈{" "}
+                {t('listing.market')} ≈{' '}
                 <span className={styles.lineThrough}>
                   {formatMoney(marketValue)}
                 </span>
@@ -162,11 +161,6 @@ export function ListingDetail() {
                 </span>
                 <div>
                   <b className={styles.sellerName}>{car.sellerDisplayName}</b>
-                  {car.isVerifiedCompany && (
-                    <span className={styles.verified}>
-                      <BadgeCheck size={13} /> {t('listing.verifiedCompany')}
-                    </span>
-                  )}
                 </div>
               </div>
               <div className={styles.contactGrid}>
@@ -198,5 +192,5 @@ export function ListingDetail() {
       </main>
       <Footer />
     </>
-  );
+  )
 }

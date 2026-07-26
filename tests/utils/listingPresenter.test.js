@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { platformContact } from '../../src/config/platformContact'
 import { presentListingCard, presentListingDetail } from '../../src/utils/listingPresenter'
 
 const t = key => key
@@ -8,7 +9,7 @@ describe('presentListingCard', () => {
     id: '1',
     make: 'Toyota',
     model: 'Camry',
-    price: 20000,
+    publicPrice: 20000,
     mileage: 15000,
     fuel: 'gasoline',
     transmission: 'automatic',
@@ -17,7 +18,7 @@ describe('presentListingCard', () => {
     sellerName: 'Nino',
   }
 
-  it('computes a market price from price when none is provided', () => {
+  it('computes a market price from publicPrice when none is provided', () => {
     const card = presentListingCard(baseItem, t)
     expect(card.market).toBe(Math.round(20000 * 1.22))
   })
@@ -32,26 +33,14 @@ describe('presentListingCard', () => {
     expect(card.mileage).toBe('15,000 listing.km')
   })
 
-  it('labels an individual seller by name', () => {
-    const card = presentListingCard(baseItem, t)
-    expect(card.sellerDisplayName).toBe('Nino')
-    expect(card.isVerifiedCompany).toBe(false)
-  })
-
-  it('prefers companyName for a verified company seller', () => {
+  it('always shows the platform as the seller, regardless of the original seller data', () => {
     const card = presentListingCard({
       ...baseItem,
       sellerType: 'company',
       companyName: 'Verified Cars GE',
       companyVerificationStatus: 'verified',
     }, t)
-    expect(card.sellerDisplayName).toBe('Verified Cars GE')
-    expect(card.isVerifiedCompany).toBe(true)
-  })
-
-  it('does not mark an unverified company as verified', () => {
-    const card = presentListingCard({ ...baseItem, sellerType: 'company', companyVerificationStatus: 'pending' }, t)
-    expect(card.isVerifiedCompany).toBe(false)
+    expect(card.sellerDisplayName).toBe(platformContact.name)
   })
 })
 
@@ -60,11 +49,10 @@ describe('presentListingDetail', () => {
     id: '1',
     make: 'Toyota',
     model: 'Camry',
-    price: 20000,
+    publicPrice: 20000,
     mileage: 15000,
     sellerType: 'individual',
     sellerName: 'Nino',
-    phone: '+995 555 12 34 56',
     image: 'https://example.com/a.jpg',
     images: ['https://example.com/a.jpg', 'https://example.com/b.jpg'],
   }
@@ -79,16 +67,11 @@ describe('presentListingDetail', () => {
     expect(detail.saving).toBe('home.inTransit')
   })
 
-  it('builds tel: and wa.me hrefs from a Georgian mobile number', () => {
-    const detail = presentListingDetail(baseListing, t)
-    expect(detail.phoneHref).toBe('tel:+995 555 12 34 56')
-    expect(detail.whatsappHref).toBe('https://wa.me/995555123456')
-  })
-
-  it('omits the whatsapp href when there is no phone number', () => {
-    const detail = presentListingDetail({ ...baseListing, phone: '' }, t)
-    expect(detail.phoneHref).toBe('')
-    expect(detail.whatsappHref).toBe('')
+  it('always shows the platform contact, regardless of the original seller data', () => {
+    const detail = presentListingDetail({ ...baseListing, sellerName: 'Nino', phone: '+995 555 12 34 56' }, t)
+    expect(detail.sellerDisplayName).toBe(platformContact.name)
+    expect(detail.phoneHref).toBe(platformContact.phoneHref)
+    expect(detail.whatsappHref).toBe(platformContact.whatsappHref)
   })
 
   it('deduplicates the image list and keeps the primary image first', () => {

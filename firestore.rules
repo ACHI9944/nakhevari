@@ -182,8 +182,6 @@ service cloud.firestore {
           && data.year is int
           && data.year >= 1900
           && data.year <= 2100
-          && (data.price is int || data.price is float)
-          && data.price > 0
           && (data.mileage is int || data.mileage is float)
           && data.mileage >= 0
           && data.vin is string
@@ -198,33 +196,10 @@ service cloud.firestore {
           && data.arrivalDate is string
           && data.arrivalDate.size() <= 30
           && validOptionalString(data, 'damageDescription', 1000)
-          && data.sellerName is string
-          && data.sellerName.size() > 0
-          && data.sellerName.size() <= 120
-          && data.phone is string
-          && data.phone.size() <= 30
           && data.sellerType in ['individual', 'company']
-          && data.ownerEmail is string
-          && data.ownerEmail.size() <= 254
-          && validOptionalString(data, 'companyName', 160)
           && (
-            !('companyVerificationStatus' in data)
-            || data.companyVerificationStatus in ['verified', 'not_required']
-          )
-          && (
-            data.sellerType != 'company'
-            || !('companyVerificationStatus' in data)
-            || data.companyVerificationStatus == 'verified'
-          )
-          && (
-            data.sellerType != 'company'
-            || !('companyName' in data)
-            || data.companyName == userProfile().companyName
-          )
-          && (
-            data.sellerType != 'individual'
-            || !('companyVerificationStatus' in data)
-            || data.companyVerificationStatus == 'not_required'
+            !('publicPrice' in data)
+            || ((data.publicPrice is int || data.publicPrice is float) && data.publicPrice > 0)
           )
           && (
             !('market' in data)
@@ -241,10 +216,32 @@ service cloud.firestore {
           && (
             !('makeModelSearch' in data)
             || (data.makeModelSearch is string && data.makeModelSearch.size() <= 140)
+          );
+      }
+
+      // Seller-identifying data (name, phone, email, original asking price) lives in
+      // this subcollection instead of on the public listing doc, because Firestore
+      // read rules are document-level: the public doc is readable by anyone once
+      // status == 'published', so PII/pricing here must never be a field on it.
+      function validSellerInfo(data) {
+        return data.ownerId is string
+          && data.sellerName is string
+          && data.sellerName.size() > 0
+          && data.sellerName.size() <= 120
+          && data.phone is string
+          && data.phone.size() <= 30
+          && (data.sellerPrice is int || data.sellerPrice is float)
+          && data.sellerPrice > 0
+          && data.ownerEmail is string
+          && data.ownerEmail.size() <= 254
+          && validOptionalString(data, 'companyName', 160)
+          && (
+            !('companyName' in data)
+            || data.companyName == userProfile().companyName
           )
           && (
-            !('sellerSearch' in data)
-            || (data.sellerSearch is string && data.sellerSearch.size() <= 160)
+            !('companyVerificationStatus' in data)
+            || data.companyVerificationStatus in ['verified', 'not_required']
           );
       }
 
@@ -257,20 +254,19 @@ service cloud.firestore {
         && request.resource.data.status == 'pending'
         && canUseSellerType(request.resource.data.sellerType)
         && request.resource.data.keys().hasAll([
-          'make', 'model', 'year', 'price', 'vin', 'mileage', 'fuel',
-          'transmission', 'transportStatus', 'arrivalDate', 'sellerName',
-          'phone', 'sellerType', 'ownerId', 'ownerEmail', 'status',
+          'make', 'model', 'year', 'vin', 'mileage', 'fuel',
+          'transmission', 'transportStatus', 'arrivalDate',
+          'sellerType', 'ownerId', 'status',
           'createdAt', 'updatedAt', 'imagePath', 'imagePaths',
-          'vinSearch', 'makeModelSearch', 'sellerSearch'
+          'vinSearch', 'makeModelSearch'
         ])
         && request.resource.data.keys().hasOnly([
-          'make', 'model', 'year', 'price', 'vin', 'mileage', 'fuel',
+          'make', 'model', 'year', 'vin', 'mileage', 'fuel',
           'transmission', 'transportStatus', 'arrivalDate',
-          'damageDescription', 'sellerName', 'phone', 'sellerType',
-          'ownerId', 'ownerEmail', 'status', 'createdAt', 'updatedAt',
+          'damageDescription', 'sellerType',
+          'ownerId', 'status', 'createdAt', 'updatedAt',
           'image', 'images', 'imagePath', 'imagePaths', 'market', 'schemaVersion',
-          'companyName', 'companyVerificationStatus',
-          'vinSearch', 'makeModelSearch', 'sellerSearch'
+          'publicPrice', 'vinSearch', 'makeModelSearch'
         ])
         && validListingData(request.resource.data);
       allow update: if signedIn()
@@ -282,14 +278,33 @@ service cloud.firestore {
           && request.resource.data.createdAt == resource.data.createdAt
           && validListingData(request.resource.data)
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'make', 'model', 'year', 'price', 'vin', 'mileage', 'fuel',
+            'make', 'model', 'year', 'vin', 'mileage', 'fuel',
             'transmission', 'transportStatus', 'arrivalDate',
-            'damageDescription', 'sellerName', 'phone', 'sellerType',
+            'damageDescription', 'sellerType',
             'updatedAt', 'image', 'images', 'imagePath', 'imagePaths', 'market',
-            'companyName', 'companyVerificationStatus',
-            'vinSearch', 'makeModelSearch', 'sellerSearch'
+            'vinSearch', 'makeModelSearch'
           ]);
       allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+
+      match /private/{document} {
+        allow read: if isAdmin() || (signedIn() && resource.data.ownerId == request.auth.uid);
+        // Deliberately self-contained: this create runs in the same client
+        // writeBatch() as the parent listing's create, and a get() on that
+        // sibling document here would not reliably see its not-yet-committed
+        // write, so validation never depends on the parent doc.
+        allow create: if signedIn()
+          && request.resource.data.ownerId == request.auth.uid
+          && request.resource.data.keys().hasAll(['ownerId', 'sellerName', 'phone', 'sellerPrice', 'ownerEmail', 'createdAt', 'updatedAt'])
+          && request.resource.data.keys().hasOnly(['ownerId', 'sellerName', 'phone', 'sellerPrice', 'ownerEmail', 'companyName', 'companyVerificationStatus', 'createdAt', 'updatedAt'])
+          && validSellerInfo(request.resource.data);
+        allow update: if signedIn()
+          && resource.data.ownerId == request.auth.uid
+          && get(/databases/$(database)/documents/listings/$(listingId)).data.status == 'pending'
+          && request.resource.data.ownerId == resource.data.ownerId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sellerName', 'phone', 'sellerPrice', 'ownerEmail', 'companyName', 'companyVerificationStatus', 'updatedAt'])
+          && validSellerInfo(request.resource.data);
+        allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+      }
     }
 
     match /listingModerationEvents/{eventId} {

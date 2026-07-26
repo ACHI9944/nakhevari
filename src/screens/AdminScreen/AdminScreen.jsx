@@ -24,6 +24,8 @@ import {
 import { useAdminDashboardData } from './hooks/useAdminDashboardData'
 import styles from './AdminScreen.module.css'
 
+const maintenanceBatchLimit = 400
+
 export function AdminPage() {
   const { t } = useTranslation()
   const { user } = useAuth()
@@ -47,6 +49,7 @@ export function AdminPage() {
   const [selectedId, setSelectedId] = useState(null)
   const [selectedCompanyId, setSelectedCompanyId] = useState(null)
   const [rejectionReason, setRejectionReason] = useState('')
+  const [publicPrice, setPublicPrice] = useState('')
   const [companyReason, setCompanyReason] = useState('')
   const [adminEmail, setAdminEmail] = useState('')
   const [maintenanceCursor, setMaintenanceCursor] = useState('')
@@ -86,9 +89,16 @@ export function AdminPage() {
   const moderate = async nextStatus => {
     if (!selected) return
     if (nextStatus === 'rejected' && !rejectionReason.trim()) return
+    if (nextStatus === 'published' && !(Number(publicPrice) > 0)) return
     try {
-      await dispatch(reviewListing({ listingId: selected.id, status: nextStatus, reason: rejectionReason })).unwrap()
+      await dispatch(reviewListing({
+        listingId: selected.id,
+        status: nextStatus,
+        reason: rejectionReason,
+        publicPrice,
+      })).unwrap()
       setRejectionReason('')
+      setPublicPrice('')
       setSelectedId(null)
     } catch {
       // The slice exposes the callable error in the dashboard.
@@ -128,6 +138,7 @@ export function AdminPage() {
   const selectListing = id => {
     setSelectedId(id)
     setRejectionReason('')
+    setPublicPrice('')
   }
 
   const selectCompany = uid => {
@@ -136,13 +147,14 @@ export function AdminPage() {
   }
 
   const runSearchBackfill = async dryRun => {
+    if (!dryRun && !window.confirm(t('admin.maintenanceApplyConfirm', { limit: maintenanceBatchLimit }))) return
     setMaintenanceLoading(true)
     setMaintenanceError('')
     try {
       const result = await backfillListingSearchFields({
         cursor: dryRun ? '' : maintenanceCursor,
         dryRun,
-        limit: 400,
+        limit: maintenanceBatchLimit,
       })
       setMaintenanceResult(result)
       setMaintenanceCursor(result.nextCursor || '')
@@ -206,8 +218,10 @@ export function AdminPage() {
               loading={loadingListings}
               onFilterChange={changeListingFilter}
               onModerate={moderate}
+              onPublicPriceChange={setPublicPrice}
               onRejectionReasonChange={setRejectionReason}
               onSelect={selectListing}
+              publicPrice={publicPrice}
               rejectionReason={rejectionReason}
               selected={selected}
               t={t}

@@ -197,8 +197,7 @@
 .searchSection,
 .listingsSection,
 .sectionContainer,
-.brandSection,
-.companiesSection {
+.brandSection {
   width: 100%;
   max-width: 1240px;
   margin: 0 auto;
@@ -207,8 +206,7 @@
 }
 
 .listingsSection,
-.brandSection,
-.companiesSection {
+.brandSection {
   padding-top: 96px;
   padding-bottom: 96px;
 }
@@ -254,8 +252,7 @@
   font-size: 14px;
 }
 
-.emptyAction,
-.companiesAction {
+.emptyAction {
   margin-top: 20px;
 }
 
@@ -388,58 +385,6 @@
   gap: 20px;
 }
 
-.companiesCard {
-  position: relative;
-  overflow: hidden;
-  border-radius: 28px;
-  background: var(--color-dark);
-  padding: 48px 24px;
-  color: var(--color-text-inverse);
-}
-
-.companiesGlow {
-  position: absolute;
-  top: -128px;
-  right: -80px;
-  width: 320px;
-  height: 320px;
-  border-radius: 999px;
-  background: rgb(var(--color-brand-rgb) / 0.2);
-  filter: blur(64px);
-}
-
-.companiesContent {
-  position: relative;
-  z-index: 10;
-  max-width: 672px;
-}
-
-.companiesEyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  border: 1px solid var(--color-glass);
-  border-radius: 999px;
-  background: var(--color-glass-soft);
-  padding: 8px 14px;
-  color: var(--color-warm);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.companiesTitle {
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 1.25;
-}
-
-.companiesText {
-  margin-top: 20px;
-  color: var(--color-border-strong);
-  line-height: 1.75;
-}
-
 @media (min-width: 640px) {
   .heroTitle {
     font-size: 48px;
@@ -469,11 +414,6 @@
   .trustGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .companiesCard {
-    padding-right: 48px;
-    padding-left: 48px;
-  }
 }
 
 @media (min-width: 1024px) {
@@ -498,11 +438,6 @@
   .trustGrid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-
-  .companiesCard {
-    padding-right: 64px;
-    padding-left: 64px;
-  }
 }
 
 @media (min-width: 640px) {
@@ -510,8 +445,7 @@
   .searchSection,
   .listingsSection,
   .sectionContainer,
-  .brandSection,
-  .companiesSection {
+  .brandSection {
     padding-right: 32px;
     padding-left: 32px;
   }
@@ -522,8 +456,7 @@
   .searchSection,
   .listingsSection,
   .sectionContainer,
-  .brandSection,
-  .companiesSection {
+  .brandSection {
     padding-right: 40px;
     padding-left: 40px;
   }

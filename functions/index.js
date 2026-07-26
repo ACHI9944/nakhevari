@@ -1,13 +1,19 @@
 const { moderateListing } = require('./listings/moderateListing')
 const { backfillListingSearchFields } = require('./listings/backfillListingSearchFields')
+const { backfillSellerPrivacySplit } = require('./listings/backfillSellerPrivacySplit')
 const { listAdmins } = require('./admins/listAdmins')
 const { setAdminAccess } = require('./admins/setAdminAccess')
 const { listProfiles } = require('./users/listProfiles')
 const { updateCompanyVerification } = require('./companies/updateCompanyVerification')
+const { renderPage } = require('./rendering/renderPage')
+const { renderSitemap } = require('./rendering/renderSitemap')
 
 exports.moderateListing = moderateListing
 exports.backfillListingSearchFields = backfillListingSearchFields
+exports.backfillSellerPrivacySplit = backfillSellerPrivacySplit
 exports.listAdmins = listAdmins
 exports.setAdminAccess = setAdminAccess
 exports.listProfiles = listProfiles
 exports.updateCompanyVerification = updateCompanyVerification
+exports.renderPage = renderPage
+exports.renderSitemap = renderSitemap

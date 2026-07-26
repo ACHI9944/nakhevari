@@ -1,14 +1,14 @@
-import { useTranslation } from "react-i18next";
-import { BadgeCheck, CarFront, Search } from "lucide-react";
-import styles from "./HowItWorks.module.css";
+import { useTranslation } from 'react-i18next'
+import { BadgeCheck, CarFront, Phone } from 'lucide-react'
+import styles from './HowItWorks.module.css'
 
 export function HowItWorks() {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   const steps = [
-    [CarFront, t("how.sellerTitle"), t("how.sellerText")],
-    [Search, t("how.buyerTitle"), t("how.buyerText")],
-    [BadgeCheck, t("how.contactTitle"), t("how.contactText")],
-  ];
+    [CarFront, t('how.sellerTitle'), t('how.sellerText')],
+    [BadgeCheck, t('how.reviewTitle'), t('how.reviewText')],
+    [Phone, t('how.contactTitle'), t('how.contactText')],
+  ]
 
   return (
     <div className={styles.grid}>
@@ -23,5 +23,5 @@ export function HowItWorks() {
         </div>
       ))}
     </div>
-  );
+  )
 }

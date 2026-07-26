@@ -26,7 +26,11 @@ let testEnv
 
 beforeAll(async () => {
   testEnv = await initializeTestEnvironment({
-    projectId: 'nakhevari-rules-test',
+    // Each rules test file gets its own project ID so the Firestore/Storage
+    // emulator data is isolated: vitest runs test files concurrently, and
+    // clearFirestore()/clearStorage() clear an entire project's data, so
+    // sharing one project ID across files causes cross-file race failures.
+    projectId: 'nakhevari-rules-test-users',
     firestore: {
       rules: readFileSync('firestore.rules', 'utf8'),
       host: '127.0.0.1',

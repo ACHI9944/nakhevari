@@ -1,11 +1,11 @@
 import { cx } from '../../utils/classNames'
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, Search } from "lucide-react";
-import styles from "./SearchableSelect.module.css";
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Check, ChevronDown, Search } from 'lucide-react'
+import styles from './SearchableSelect.module.css'
 
 export function SearchableSelect({
   name,
-  value = "",
+  value = '',
   options = [],
   onChange,
   placeholder,
@@ -17,36 +17,36 @@ export function SearchableSelect({
   searchable = true,
   ariaLabel,
 }) {
-  const rootRef = useRef(null);
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const rootRef = useRef(null)
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
 
   const normalizedOptions = useMemo(
     () =>
       options.map((option) =>
-        typeof option === "string" ? { value: option, label: option } : option,
+        typeof option === 'string' ? { value: option, label: option } : option,
       ),
     [options],
-  );
-  const selected = normalizedOptions.find((option) => option.value === value);
+  )
+  const selected = normalizedOptions.find((option) => option.value === value)
   const filteredOptions = normalizedOptions.filter((option) =>
     option.label.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
-  );
+  )
 
   useEffect(() => {
     const closeOnOutsideClick = (event) => {
-      if (!rootRef.current?.contains(event.target)) setOpen(false);
-    };
-    document.addEventListener("pointerdown", closeOnOutsideClick);
+      if (!rootRef.current?.contains(event.target)) setOpen(false)
+    }
+    document.addEventListener('pointerdown', closeOnOutsideClick)
     return () =>
-      document.removeEventListener("pointerdown", closeOnOutsideClick);
-  }, []);
+      document.removeEventListener('pointerdown', closeOnOutsideClick)
+  }, [])
 
   const choose = (option) => {
-    onChange?.(option?.value || "", option || null);
-    setQuery("");
-    setOpen(false);
-  };
+    onChange?.(option?.value || '', option || null)
+    setQuery('')
+    setOpen(false)
+  }
 
   return (
     <div ref={rootRef} className={styles.root}>
@@ -86,10 +86,10 @@ export function SearchableSelect({
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   onKeyDown={(event) => {
-                    if (event.key === "Escape") setOpen(false);
-                    if (event.key === "Enter" && filteredOptions[0]) {
-                      event.preventDefault();
-                      choose(filteredOptions[0]);
+                    if (event.key === 'Escape') setOpen(false)
+                    if (event.key === 'Enter' && filteredOptions[0]) {
+                      event.preventDefault()
+                      choose(filteredOptions[0])
                     }
                   }}
                   placeholder={searchPlaceholder}
@@ -130,5 +130,5 @@ export function SearchableSelect({
         </div>
       )}
     </div>
-  );
+  )
 }

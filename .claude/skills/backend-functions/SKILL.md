@@ -31,3 +31,4 @@ Specialist for Firebase Cloud Functions, Firebase Admin SDK, Firestore access, c
 - Preserve audit event writes for sensitive admin actions.
 - Prefer Firestore transactions when updating a document and writing its audit event together, as `moderateListing` and `updateCompanyVerification` do.
 - When the sensitive action is a Firebase Auth Admin API call (e.g. `setCustomUserClaims`) rather than a Firestore write, it cannot join a Firestore transaction. Follow `setAdminAccess`'s pattern instead: create the audit event as `status: 'pending'` first, perform the Auth call, then update the event to `status: 'applied'` or `status: 'failed'`.
+- Add or update a `tests/functions/` test (see the `testing` skill) for any new or changed callable — these tests call the exported function directly via `.run(request)` against the Firestore/Auth emulators, no deploy needed.

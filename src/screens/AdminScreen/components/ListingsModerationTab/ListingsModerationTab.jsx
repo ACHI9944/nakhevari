@@ -15,8 +15,10 @@ export function ListingsModerationTab({
   loading,
   onFilterChange,
   onModerate,
+  onPublicPriceChange,
   onRejectionReasonChange,
   onSelect,
+  publicPrice,
   rejectionReason,
   selected,
   t,
@@ -57,7 +59,7 @@ export function ListingsModerationTab({
                 </div>
                 <div className={styles.itemMeta}>
                   <span>{item.year}</span>
-                  <span>${Number(item.price).toLocaleString()}</span>
+                  <span>${Number(item.sellerPrice).toLocaleString()}</span>
                   <span>{item.sellerName}</span>
                 </div>
               </button>
@@ -67,7 +69,9 @@ export function ListingsModerationTab({
             <ListingReviewPanel
               acting={acting}
               onModerate={onModerate}
+              onPublicPriceChange={onPublicPriceChange}
               onRejectionReasonChange={onRejectionReasonChange}
+              publicPrice={publicPrice}
               rejectionReason={rejectionReason}
               selected={selected}
               t={t}
@@ -79,7 +83,7 @@ export function ListingsModerationTab({
   )
 }
 
-function ListingReviewPanel({ acting, onModerate, onRejectionReasonChange, rejectionReason, selected, t }) {
+function ListingReviewPanel({ acting, onModerate, onPublicPriceChange, onRejectionReasonChange, publicPrice, rejectionReason, selected, t }) {
   return (
     <aside className={styles.reviewPanel}>
       <div className={styles.asideHeader}>
@@ -92,7 +96,7 @@ function ListingReviewPanel({ acting, onModerate, onRejectionReasonChange, rejec
       <dl className={styles.detailGrid}>
         {[
           ['vin', selected.vin],
-          ['price', `$${Number(selected.price).toLocaleString()}`],
+          ['price', `$${Number(selected.sellerPrice).toLocaleString()}`],
           ['mileage', Number(selected.mileage).toLocaleString()],
           ['arrival', selected.arrivalDate],
           ['seller', selected.sellerName],
@@ -114,6 +118,15 @@ function ListingReviewPanel({ acting, onModerate, onRejectionReasonChange, rejec
       )}
       {selected.status === 'pending' && (
         <div className={styles.reviewActions}>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={publicPrice}
+            onChange={event => onPublicPriceChange(event.target.value)}
+            className={styles.field}
+            placeholder={t('admin.publicPricePlaceholder')}
+          />
           <textarea
             value={rejectionReason}
             onChange={event => onRejectionReasonChange(event.target.value)}
@@ -123,7 +136,7 @@ function ListingReviewPanel({ acting, onModerate, onRejectionReasonChange, rejec
             placeholder={t('admin.reason')}
           />
           <div className={styles.buttonGrid}>
-            <Button onClick={() => onModerate('published')} disabled={acting}>
+            <Button onClick={() => onModerate('published')} disabled={acting || !(Number(publicPrice) > 0)}>
               <CheckCircle2 size={17} />{t('admin.publish')}
             </Button>
             <Button

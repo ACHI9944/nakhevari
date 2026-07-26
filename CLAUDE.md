@@ -21,9 +21,13 @@ Backend:
 
 ## Domain Facts
 - Public callable functions are exported from `functions/index.js`; the file path does not define the public function name.
-- Current callable functions: `moderateListing`, `backfillListingSearchFields`, `listAdmins`, `setAdminAccess`, `listProfiles`, `updateCompanyVerification`.
-- Firestore collections in active use: `users`, `listings`, `listingModerationEvents`, `adminAccessEvents`, `companyVerificationEvents`.
-- Listing statuses: `pending`, `published`, `rejected`, `draft`. Listings are always created as `pending`; `moderateListing` only transitions `pending` → `published`/`rejected`. Nothing currently sets a listing to `draft` — it exists in `firestore.rules`/`storage.rules` and the admin dashboard's filters/counts/badges as a reserved future state, so an always-zero `draft` count is expected, not a bug.
+- Current callable functions: `moderateListing`, `backfillListingSearchFields`, `backfillSellerPrivacySplit`, `listAdmins`, `setAdminAccess`, `listProfiles`, `updateCompanyVerification`.
+- Firestore collections in active use: `users`, `listings`, `listings/{listingId}/private/sellerInfo`, `listingModerationEvents`, `adminAccessEvents`, `companyVerificationEvents`.
+- Business model: this is a consignment resale marketplace, not a peer-to-peer listing board. A seller submits a car privately (their own asking price + contact info); once an admin approves it, the listing publishes under Nakhevari's own identity and at a price the admin sets (the seller's ask + margin) — buyers only ever see/contact Nakhevari, never the original seller.
+- Listing data is split across two documents per listing: the public `listings/{listingId}` doc (vehicle facts, `sellerType`, `publicPrice` — the admin-set price buyers see/sort/filter by — status, images) and the private `listings/{listingId}/private/sellerInfo` doc (`sellerName`, `phone`, `ownerEmail`, `sellerPrice` — the seller's original ask — optional `companyName`/`companyVerificationStatus`), readable only by the listing's owner and admins. This split exists because Firestore read rules are document-level, not field-level — the public doc is readable by anyone once `status == 'published'`, so seller PII/pricing must never live on it. See the `firebase-security` skill.
+- The platform contact shown to buyers on every published listing (`src/config/platformContact.js`) is a fixed constant ("Nakhevari" + a placeholder phone number), not per-listing data — the real phone number still needs to be filled in before shipping.
+- Listing statuses: `pending`, `published`, `rejected`, `draft`. Listings are always created as `pending`; `moderateListing` requires a `publicPrice` argument (validated `> 0`) when transitioning `pending` → `published`, and only `reason` when transitioning to `rejected`. Nothing currently sets a listing to `draft` — it exists in `firestore.rules`/`storage.rules` and the admin dashboard's filters/counts/badges as a reserved future state, so an always-zero `draft` count is expected, not a bug.
+- `backfillSellerPrivacySplit` (admin-only callable, `dryRun` default `true`, mirrors `backfillListingSearchFields`'s cursor/limit shape) migrates pre-split listings into the public/private shape; a matching one-off CLI script lives at `functions/scripts/backfill-seller-privacy-split.js`.
 - Company verification statuses: `pending`, `verified`, `rejected`, `not_required`.
 - User profile statuses: `profileStatus` is `active` or `suspended`. The `users/{userId}` Firestore update rule requires `resource.data.profileStatus == 'active'`, so a suspended profile is permanently locked out of self-service profile edits by design (see the `firebase-security` skill). No code currently sets `profileStatus` to `suspended` — there is no admin "suspend user" callable yet, only the rule-level gate and the translated label. Treat this as a half-built feature, not a bug, unless asked to build the missing admin action.
 - Admin access is represented with a Firebase Auth custom claim: `admin: true`.
@@ -87,17 +91,23 @@ Use these commands when relevant:
 - Run unit tests (`src/utils/`):
   `npm run test`
 
-- Run Firestore rules tests against the emulator (needs Java 21+, see the `testing` skill):
+- Run Firestore/Storage rules tests against the emulator (needs Java 21+, see the `testing` skill):
   `npm run test:rules`
 
-There are currently no explicit backend test scripts in `functions/package.json`.
+- Run Cloud Functions tests against the Firestore/Auth emulator (needs Java 21+, see the `testing` skill):
+  `npm run test:functions`
+
+- Run everything (`test` + `test:rules` + `test:functions`):
+  `npm run test:all`
+
+`functions/package.json` itself still has no test script — the Cloud Functions test suite lives at the repo root (`tests/functions/`, run via `npm run test:functions`) so it can reuse the root Vitest setup, the same way `tests/rules/` does.
 
 ## Verification Routing
 - Frontend-only change: prefer `npm run typecheck` and `npm run lint`.
 - Broad frontend or build-sensitive change: run `npm run build`.
 - Change to `src/utils/` or `src/services/` logic: run `npm run test`, and add/update a test in `tests/utils/` when practical.
-- Firebase rules/security change: inspect `firestore.rules`, `storage.rules`, and the matching client/backend access path, and run `npm run test:rules`.
-- Callable function contract change: inspect the frontend wrapper in `src/services/` and the export in `functions/index.js`.
+- Firebase rules/security change: inspect `firestore.rules`, `storage.rules`, and the matching client/backend access path, run `npm run test:rules`, and add/update a test in `tests/rules/` when practical.
+- Callable function contract change: inspect the frontend wrapper in `src/services/` and the export in `functions/index.js`, run `npm run test:functions`, and add/update a test in `tests/functions/` when practical.
 - Admin, profile, moderation, or company verification change: use the relevant specialist skill before editing.
 
 ## Frontend Rules

@@ -1,22 +1,22 @@
 import { cx } from '../../utils/classNames'
-import styles from "./Button.module.css";
+import styles from './Button.module.css'
 
 export function Button({
   children,
-  variant = "primary",
-  className = "",
+  variant = 'primary',
+  className = '',
   href,
   onClick,
-  type = "button",
+  type = 'button',
   disabled = false,
   ...props
 }) {
   const variantClass =
-    variant === "primary"
+    variant === 'primary'
       ? styles.primary
-      : variant === "dark"
+      : variant === 'dark'
         ? styles.dark
-        : styles.outline;
+        : styles.outline
 
   const classes = cx(styles.button, variantClass, className)
 
@@ -25,7 +25,7 @@ export function Button({
       <a href={href} onClick={onClick} className={classes} {...props}>
         {children}
       </a>
-    );
+    )
   }
 
   return (
@@ -38,5 +38,5 @@ export function Button({
     >
       {children}
     </button>
-  );
+  )
 }

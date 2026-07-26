@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 import { ArrowUpDown, CalendarDays, ChevronDown, DollarSign, Gauge, Search, SlidersHorizontal, X } from 'lucide-react'
 import { Button, Footer, Header, RangeFilterPopover } from '../../components'
 import { SearchableSelect } from '../../components/SearchableSelect/SearchableSelect'
-import { formGroups, localizeVehicleOptions } from '../../data/listingForm'
 import { fetchPublishedListings } from '../../store/listingsSlice'
 import { useUsdGelRate } from '../../hooks/useUsdGelRate'
 import { useVehicleCatalog } from '../../hooks/useVehicleCatalog'
@@ -15,11 +14,10 @@ import {
   listingFiltersToSearchParams,
   removeListingFilterParam,
 } from '../../utils/listingFilterParams'
+import { buildListingFilterLabels, buildVehicleOptionGroups } from '../../utils/listingFilterDisplay'
 import {
-  mileageUnitLabel,
   mileageUnitOptions,
   priceCurrencyOptions,
-  priceCurrencySymbol,
   toBaseListingFilters,
 } from '../../utils/listingFilterUnits'
 import { presentListingCard } from '../../utils/listingPresenter'
@@ -56,9 +54,7 @@ export function Listings() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchRequestKey, dispatch])
 
-  const fuelOptions = localizeVehicleOptions(formGroups[1][1].find(field => field.name === 'fuel').options, t)
-  const transmissionOptions = localizeVehicleOptions(formGroups[1][1].find(field => field.name === 'transmission').options, t)
-  const transportOptions = localizeVehicleOptions(formGroups[1][1].find(field => field.name === 'transportStatus').options, t)
+  const { fuelOptions, transmissionOptions, transportOptions } = buildVehicleOptionGroups(t)
 
   const visibleCars = useMemo(() => items.map(item => ({
     ...presentListingCard(item, t),
@@ -107,10 +103,8 @@ export function Listings() {
     }))
   }
 
-  const priceSymbol = priceCurrencySymbol(filters.priceCurrency)
-  const appliedPriceSymbol = priceCurrencySymbol(appliedFilters.priceCurrency)
-  const currentMileageUnit = mileageUnitLabel(filters.mileageUnit, t)
-  const appliedMileageUnit = mileageUnitLabel(appliedFilters.mileageUnit, t)
+  const { yearLabel, priceLabel, mileageLabel } = buildListingFilterLabels(filters, t)
+  const appliedLabels = buildListingFilterLabels(appliedFilters, t)
   const activeAdvancedCount = [
     appliedFilters.minYear || appliedFilters.maxYear,
     appliedFilters.minMileage || appliedFilters.maxMileage,
@@ -125,25 +119,15 @@ export function Listings() {
     appliedFilters.q && ['q', t('filters.keyword'), appliedFilters.q],
     appliedFilters.make && ['make', t('filters.make'), appliedFilters.make],
     appliedFilters.model && ['model', t('filters.model'), appliedFilters.model],
-    (appliedFilters.minPrice || appliedFilters.maxPrice) && ['minPrice', t('filters.price'), `${appliedPriceSymbol}${appliedFilters.minPrice || 0} - ${appliedFilters.maxPrice ? `${appliedPriceSymbol}${appliedFilters.maxPrice}` : t('listings.maxPrice')}`],
-    (appliedFilters.minYear || appliedFilters.maxYear) && ['minYear', t('filters.year'), `${appliedFilters.minYear || t('listings.minYear')} - ${appliedFilters.maxYear || t('listings.maxYear')}`],
-    (appliedFilters.minMileage || appliedFilters.maxMileage) && ['minMileage', t('listing.mileage'), `${appliedFilters.minMileage || 0} - ${appliedFilters.maxMileage || t('listings.maxMileage')} ${appliedMileageUnit}`],
+    (appliedFilters.minPrice || appliedFilters.maxPrice) && ['minPrice', t('filters.price'), appliedLabels.priceLabel],
+    (appliedFilters.minYear || appliedFilters.maxYear) && ['minYear', t('filters.year'), appliedLabels.yearLabel],
+    (appliedFilters.minMileage || appliedFilters.maxMileage) && ['minMileage', t('listing.mileage'), appliedLabels.mileageLabel],
     appliedFilters.fuel && ['fuel', t('listing.fuel'), fuelOptions.find(option => option.value === appliedFilters.fuel)?.label || appliedFilters.fuel],
     appliedFilters.transmission && ['transmission', t('listing.transmission'), transmissionOptions.find(option => option.value === appliedFilters.transmission)?.label || appliedFilters.transmission],
     appliedFilters.transportStatus && ['transportStatus', t('listings.transportStatus'), transportOptions.find(option => option.value === appliedFilters.transportStatus)?.label || appliedFilters.transportStatus],
     appliedFilters.sellerType && ['sellerType', t('add.sellerType'), appliedFilters.sellerType === 'company' ? t('common.company') : t('common.individual')],
     appliedFilters.sort !== 'newest' && ['sort', t('listings.sort'), t(`listings.sortOptions.${appliedFilters.sort}`)],
   ].filter(Boolean)
-
-  const yearLabel = filters.minYear || filters.maxYear
-    ? `${filters.minYear || t('listings.minYear')} - ${filters.maxYear || t('listings.maxYear')}`
-    : t('filters.year')
-  const priceLabel = filters.minPrice || filters.maxPrice
-    ? `${priceSymbol}${filters.minPrice || 0} - ${filters.maxPrice ? `${priceSymbol}${filters.maxPrice}` : t('listings.maxPrice')}`
-    : t('filters.price')
-  const mileageLabel = filters.minMileage || filters.maxMileage
-    ? `${filters.minMileage || 0} - ${filters.maxMileage || t('listings.maxMileage')} ${currentMileageUnit}`
-    : t('listing.mileage')
 
   return <>
     <Header />

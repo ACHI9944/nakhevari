@@ -34,6 +34,12 @@ const serializeProfile = snapshot => {
 }
 
 const readProfile = async uid => serializeProfile(await getDoc(doc(db, 'users', uid)))
+// getIdTokenResult(user) reads the cached ID token rather than forcing a refresh, so a
+// newly granted admin claim (functions/admins/setAdminAccess.js) only shows up here after
+// the token naturally refreshes (roughly hourly) or the user signs in again. That's expected:
+// the client-side isAdmin flag only drives UI visibility (see RequireAdmin in AppRoutes.jsx),
+// and every admin-only write is independently re-checked server-side via assertAdmin, so a
+// stale client claim can only hide the admin UI a bit longer, never grant unauthorized access.
 const readAdminClaim = async user => user ? (await getIdTokenResult(user)).claims.admin === true : false
 const companyStatusFor = accountType => accountType === 'company' ? 'pending' : 'not_required'
 
