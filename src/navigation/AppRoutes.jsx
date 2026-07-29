@@ -51,6 +51,15 @@ function ProfileLoadError() {
   )
 }
 
+function RedirectIfAuthenticated() {
+  const { user, loading } = useAuth()
+
+  if (loading) return <PageLoader />
+  if (user) return <Navigate to="/account" replace />
+
+  return <Outlet />
+}
+
 function RequireVerifiedUser() {
   const { user, profile, profileError, loading } = useAuth()
 
@@ -79,7 +88,9 @@ export function AppRoutes() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/listings" element={<Listings />} />
-        <Route path="/auth" element={<AuthPage />} />
+        <Route element={<RedirectIfAuthenticated />}>
+          <Route path="/auth" element={<AuthPage />} />
+        </Route>
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/complete-profile" element={<CompleteProfilePage />} />
         <Route path="/listing/:id" element={<ListingDetailRoute />} />

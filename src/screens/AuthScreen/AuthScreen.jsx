@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, ArrowRight, Mail } from 'lucide-react'
@@ -36,7 +36,7 @@ const errorMessages = {
 export function AuthPage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { user, login, loginWithGoogle, register } = useAuth()
+  const { login, loginWithGoogle, register } = useAuth()
   const [mode, setMode] = useState('login')
   const [accountType, setAccountType] = useState('individual')
   const [gender, setGender] = useState('')
@@ -44,18 +44,6 @@ export function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [googlePending, setGooglePending] = useState(false)
-
-  // The Google popup's own promise can hang or reject even after sign-in
-  // actually succeeds (Chrome blocks the cross-origin window.closed check
-  // Firebase's popup flow relies on, see auth/loginWithGoogle in
-  // authSlice.js). AuthInitializer's onAuthStateChanged listener still
-  // picks up the real auth state independently, so once a Google attempt
-  // is in flight, navigate as soon as that state lands instead of waiting
-  // on the popup promise to settle.
-  useEffect(() => {
-    if (googlePending && user) navigate('/account')
-  }, [googlePending, user, navigate])
 
   const changeMode = nextMode => {
     setMode(nextMode)
@@ -66,7 +54,6 @@ export function AuthPage() {
     event.preventDefault()
     setLoading(true)
     setError('')
-    setGooglePending(false)
     const form = new FormData(event.currentTarget)
 
     try {
@@ -111,7 +98,6 @@ export function AuthPage() {
   const googleLogin = async () => {
     setLoading(true)
     setError('')
-    setGooglePending(true)
     try {
       await loginWithGoogle()
       navigate('/account')
