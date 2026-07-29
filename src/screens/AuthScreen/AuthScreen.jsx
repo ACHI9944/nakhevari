@@ -36,7 +36,7 @@ const errorMessages = {
 export function AuthPage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { login, loginWithGoogle, completeGoogleRedirect, register } = useAuth()
+  const { user, login, loginWithGoogle, register } = useAuth()
   const [mode, setMode] = useState('login')
   const [accountType, setAccountType] = useState('individual')
   const [gender, setGender] = useState('')
@@ -44,24 +44,18 @@ export function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [googlePending, setGooglePending] = useState(false)
 
+  // The Google popup's own promise can hang or reject even after sign-in
+  // actually succeeds (Chrome blocks the cross-origin window.closed check
+  // Firebase's popup flow relies on, see auth/loginWithGoogle in
+  // authSlice.js). AuthInitializer's onAuthStateChanged listener still
+  // picks up the real auth state independently, so once a Google attempt
+  // is in flight, navigate as soon as that state lands instead of waiting
+  // on the popup promise to settle.
   useEffect(() => {
-    let cancelled = false
-    completeGoogleRedirect()
-      .then(result => {
-        if (cancelled) return
-        if (result) navigate('/account')
-      })
-      .catch(err => {
-        if (cancelled) return
-        setError(t(`auth.errors.${errorMessages[err.code] || 'google'}`))
-        setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (googlePending && user) navigate('/account')
+  }, [googlePending, user, navigate])
 
   const changeMode = nextMode => {
     setMode(nextMode)
@@ -72,6 +66,7 @@ export function AuthPage() {
     event.preventDefault()
     setLoading(true)
     setError('')
+    setGooglePending(false)
     const form = new FormData(event.currentTarget)
 
     try {
@@ -116,13 +111,13 @@ export function AuthPage() {
   const googleLogin = async () => {
     setLoading(true)
     setError('')
+    setGooglePending(true)
     try {
-      // Navigates the browser away to Google; on success this call never
-      // resolves in this page load. completeGoogleRedirect() picks the
-      // result back up once the browser returns.
       await loginWithGoogle()
+      navigate('/account')
     } catch (err) {
       setError(t(`auth.errors.${errorMessages[err.code] || 'google'}`))
+    } finally {
       setLoading(false)
     }
   }

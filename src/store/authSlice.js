@@ -3,11 +3,10 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   getIdTokenResult,
-  getRedirectResult,
   reload,
   sendEmailVerification,
   signInWithEmailAndPassword,
-  signInWithRedirect,
+  signInWithPopup,
   signOut,
   updateProfile,
 } from 'firebase/auth'
@@ -86,16 +85,11 @@ export const loginUser = createAsyncThunk('auth/login', async ({ email, password
   return { user: serializeUser(credential.user), profile: await readProfile(credential.user.uid), isAdmin: await readAdminClaim(credential.user) }
 })
 
-// signInWithPopup relies on polling the popup window's `closed` property to
-// detect completion, which modern browsers block cross-origin under the
-// default Cross-Origin-Opener-Policy (see the Firebase Auth `firebaseapp.com`
-// handler popup) even when this app's own COOP header allows it. That leaves
-// the popup promise hanging or rejecting with an unmapped error while
-// onAuthStateChanged still fires and logs the user in, so the login page gets
-// stuck showing a generic failure. signInWithRedirect sidesteps this by
-// navigating away instead of opening a popup; completeGoogleRedirect below
-// picks the result back up after the browser returns.
-const syncGoogleUserProfile = async googleUser => {
+export const loginWithGoogle = createAsyncThunk('auth/loginWithGoogle', async () => {
+  const provider = new GoogleAuthProvider()
+  provider.setCustomParameters({ prompt: 'select_account' })
+  const credential = await signInWithPopup(auth, provider)
+  const googleUser = credential.user
   const userRef = doc(db, 'users', googleUser.uid)
   const existingProfile = await getDoc(userRef)
   const googleData = {
@@ -120,21 +114,6 @@ const syncGoogleUserProfile = async googleUser => {
     })
   }
   return { user: serializeUser(googleUser), profile: await readProfile(googleUser.uid), isAdmin: await readAdminClaim(googleUser) }
-}
-
-export const loginWithGoogle = createAsyncThunk('auth/loginWithGoogle', async () => {
-  const provider = new GoogleAuthProvider()
-  provider.setCustomParameters({ prompt: 'select_account' })
-  await signInWithRedirect(auth, provider)
-})
-
-// Called on AuthScreen mount to pick up the result after the browser
-// navigates back from Google. Resolves to null on a normal page load where
-// no sign-in redirect is pending.
-export const completeGoogleRedirect = createAsyncThunk('auth/completeGoogleRedirect', async () => {
-  const result = await getRedirectResult(auth)
-  if (!result) return null
-  return syncGoogleUserProfile(result.user)
 })
 
 export const completeUserProfile = createAsyncThunk('auth/completeProfile', async data => {
@@ -233,8 +212,7 @@ const authSlice = createSlice({
         state.isAdmin = action.payload.isAdmin
         state.initialized = true
       })
-      .addCase(completeGoogleRedirect.fulfilled, (state, action) => {
-        if (!action.payload) return
+      .addCase(loginWithGoogle.fulfilled, (state, action) => {
         state.user = action.payload.user
         state.profile = action.payload.profile
         state.profileError = null
