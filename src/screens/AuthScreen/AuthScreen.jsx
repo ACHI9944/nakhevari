@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, ArrowRight, Mail } from 'lucide-react'
@@ -36,7 +36,7 @@ const errorMessages = {
 export function AuthPage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { login, loginWithGoogle, register } = useAuth()
+  const { login, loginWithGoogle, completeGoogleRedirect, register } = useAuth()
   const [mode, setMode] = useState('login')
   const [accountType, setAccountType] = useState('individual')
   const [gender, setGender] = useState('')
@@ -44,6 +44,24 @@ export function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+    completeGoogleRedirect()
+      .then(result => {
+        if (cancelled) return
+        if (result) navigate('/account')
+      })
+      .catch(err => {
+        if (cancelled) return
+        setError(t(`auth.errors.${errorMessages[err.code] || 'google'}`))
+        setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const changeMode = nextMode => {
     setMode(nextMode)
@@ -99,11 +117,12 @@ export function AuthPage() {
     setLoading(true)
     setError('')
     try {
+      // Navigates the browser away to Google; on success this call never
+      // resolves in this page load. completeGoogleRedirect() picks the
+      // result back up once the browser returns.
       await loginWithGoogle()
-      navigate('/account')
     } catch (err) {
       setError(t(`auth.errors.${errorMessages[err.code] || 'google'}`))
-    } finally {
       setLoading(false)
     }
   }

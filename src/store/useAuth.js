@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import {
+  completeGoogleRedirect as completeGoogleRedirectThunk,
   loginUser,
   loginWithGoogle as loginWithGoogleThunk,
   logoutUser,
@@ -21,6 +22,7 @@ export function useAuth() {
     loading: !initialized,
     login: (email, password) => dispatch(loginUser({ email, password })).unwrap(),
     loginWithGoogle: () => dispatch(loginWithGoogleThunk()).unwrap(),
+    completeGoogleRedirect: () => dispatch(completeGoogleRedirectThunk()).unwrap(),
     register: data => dispatch(registerUser(data)).unwrap(),
     refreshUser: () => dispatch(refreshUserThunk()).unwrap(),
     resendEmailVerification: () => dispatch(resendEmailVerificationThunk()).unwrap(),
