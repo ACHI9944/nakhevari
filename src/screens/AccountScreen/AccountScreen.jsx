@@ -8,8 +8,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Button, Footer, Header } from '../../components'
 import { useAuth } from '../../store/useAuth'
 import { deleteListing, fetchMyListings } from '../../store/listingsSlice'
+import { fetchFavoriteListings, unfavoriteListing } from '../../store/favoritesSlice'
 import { isValidGeorgianPhone, normalizeGeorgianPhone } from '../../utils/phone'
-import { AccountListingsPanel, AccountProfileDetails, AccountProfileSummary } from './components'
+import { AccountListingsPanel, AccountProfileDetails, AccountProfileSummary, AccountSavedListingsPanel } from './components'
 import styles from './AccountScreen.module.css'
 
 export function AccountPage() {
@@ -18,17 +19,22 @@ export function AccountPage() {
   const { user, profile, logout, completeProfile } = useAuth()
   const dispatch = useDispatch()
   const { items: listings, status, error } = useSelector(state => state.listings.mine)
+  const { ids: favoriteIds, items: savedListings, itemsError: savedListingsError, itemsStatus: savedListingsStatus } = useSelector(state => state.favorites)
   const listingsLoading = status === 'idle' || status === 'loading'
+  const savedListingsLoading = savedListingsStatus === 'idle' || savedListingsStatus === 'loading'
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
   const [deleteError, setDeleteError] = useState('')
   const [deletingId, setDeletingId] = useState('')
+  const [unfavoriteError, setUnfavoriteError] = useState('')
+  const [removingFavoriteId, setRemovingFavoriteId] = useState('')
   const [accountType, setAccountType] = useState(profile?.accountType || 'individual')
   const [gender, setGender] = useState(profile?.gender || '')
   const [birthDate, setBirthDate] = useState(profile?.birthDate || '')
 
   useEffect(() => { dispatch(fetchMyListings(user.uid)) }, [dispatch, user.uid])
+  useEffect(() => { dispatch(fetchFavoriteListings(favoriteIds)) }, [dispatch, favoriteIds])
 
   const statusLabels = useMemo(() => ({
     pending: t('account.listingStatus.pending'),
@@ -55,6 +61,19 @@ export function AccountPage() {
       setDeleteError(t('account.deleteError'))
     } finally {
       setDeletingId('')
+    }
+  }
+
+  const removeSavedListing = async listingId => {
+    setUnfavoriteError('')
+    setRemovingFavoriteId(listingId)
+    try {
+      await dispatch(unfavoriteListing({ uid: user.uid, listingId })).unwrap()
+    } catch (error) {
+      console.error('account: failed to remove favorite', error)
+      setUnfavoriteError(t('account.savedListingsError'))
+    } finally {
+      setRemovingFavoriteId('')
     }
   }
 
@@ -159,6 +178,15 @@ export function AccountPage() {
               onAdd={() => navigate('/add')}
               onRemove={remove}
               statusLabels={statusLabels}
+              t={t}
+            />
+
+            <AccountSavedListingsPanel
+              error={unfavoriteError || (savedListingsError ? t('account.savedListingsError') : '')}
+              items={savedListings}
+              loading={savedListingsLoading}
+              onRemove={removeSavedListing}
+              removingId={removingFavoriteId}
               t={t}
             />
           </div>

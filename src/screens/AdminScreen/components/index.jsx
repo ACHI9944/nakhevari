@@ -1,5 +1,6 @@
 export { AdminsTab } from './AdminsTab/AdminsTab'
 export { AdminSearch } from './AdminSearch/AdminSearch'
+export { AdminStatsOverview } from './AdminStatsOverview/AdminStatsOverview'
 export { AdminTabs } from './AdminTabs/AdminTabs'
 export { CompaniesVerificationTab } from './CompaniesVerificationTab/CompaniesVerificationTab'
 export { ListingsModerationTab } from './ListingsModerationTab/ListingsModerationTab'

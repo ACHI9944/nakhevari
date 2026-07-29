@@ -1,4 +1,5 @@
 export { Button } from './Button/Button'
+export { FavoriteButton } from './FavoriteButton/FavoriteButton'
 export { Footer } from './Footer/Footer'
 export { Header } from './Header/Header'
 export { Logo } from './Logo/Logo'

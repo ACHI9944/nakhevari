@@ -120,6 +120,13 @@ service cloud.firestore {
           'updatedAt'
         ]);
       allow delete: if false;
+
+      match /favorites/{listingId} {
+        allow read, delete: if signedIn() && request.auth.uid == userId;
+        allow create: if signedIn() && request.auth.uid == userId
+          && request.resource.data.keys().hasOnly(['createdAt']);
+        allow update: if false;
+      }
     }
 
     match /listings/{listingId} {
@@ -313,6 +320,11 @@ service cloud.firestore {
     }
 
     match /adminAccessEvents/{eventId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /userStatusEvents/{eventId} {
       allow read: if isAdmin();
       allow write: if false;
     }

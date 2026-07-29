@@ -7,9 +7,10 @@ import {
 } from '../services/listings/listingModerationService'
 import {
   getAdmins,
+  getAdminStats,
   setAdminAccess,
 } from '../services/admins/adminService'
-import { getProfiles } from '../services/users/profileService'
+import { getProfiles, setUserStatus } from '../services/users/profileService'
 import { updateCompanyVerification } from '../services/companies/companyVerificationService'
 
 export const fetchAdminListings = createAsyncThunk('adminListings/fetch', () => getAdminListings('all'))
@@ -18,6 +19,8 @@ export const fetchAdmins = createAsyncThunk('adminListings/fetchAdmins', getAdmi
 export const changeAdminAccess = createAsyncThunk('adminListings/changeAdminAccess', setAdminAccess)
 export const fetchProfiles = createAsyncThunk('adminListings/fetchProfiles', getProfiles)
 export const verifyCompany = createAsyncThunk('adminListings/verifyCompany', updateCompanyVerification)
+export const changeUserStatus = createAsyncThunk('adminListings/changeUserStatus', setUserStatus)
+export const fetchAdminStats = createAsyncThunk('adminListings/fetchStats', getAdminStats)
 
 const adminListingsSlice = createSlice({
   name: 'adminListings',
@@ -25,14 +28,17 @@ const adminListingsSlice = createSlice({
     items: [],
     admins: [],
     profiles: [],
+    stats: null,
     status: 'idle',
     adminsStatus: 'idle',
     profilesStatus: 'idle',
     actionStatus: 'idle',
+    statsStatus: 'idle',
     listingsError: null,
     adminsError: null,
     profilesError: null,
     actionError: null,
+    statsError: null,
   },
   reducers: {},
   extraReducers: builder => {
@@ -121,6 +127,34 @@ const adminListingsSlice = createSlice({
       .addCase(verifyCompany.rejected, (state, action) => {
         state.actionStatus = 'failed'
         state.actionError = action.error.message
+      })
+      .addCase(changeUserStatus.pending, state => {
+        state.actionStatus = 'loading'
+        state.actionError = null
+      })
+      .addCase(changeUserStatus.fulfilled, (state, action) => {
+        const profile = state.profiles.find(item => item.uid === action.payload.uid)
+        if (profile) {
+          profile.profileStatus = action.payload.status
+          profile.profileStatusReason = action.payload.reason
+        }
+        state.actionStatus = 'succeeded'
+      })
+      .addCase(changeUserStatus.rejected, (state, action) => {
+        state.actionStatus = 'failed'
+        state.actionError = action.error.message
+      })
+      .addCase(fetchAdminStats.pending, state => {
+        state.statsStatus = 'loading'
+        state.statsError = null
+      })
+      .addCase(fetchAdminStats.fulfilled, (state, action) => {
+        state.stats = action.payload
+        state.statsStatus = 'succeeded'
+      })
+      .addCase(fetchAdminStats.rejected, (state, action) => {
+        state.statsStatus = 'failed'
+        state.statsError = action.error.message
       })
   },
 })

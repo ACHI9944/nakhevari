@@ -6,8 +6,10 @@ import { Button, Footer, Header } from '../../components'
 import { backfillListingSearchFields } from '../../services/listings/listingSearchMaintenanceService'
 import {
   changeAdminAccess,
+  changeUserStatus,
   fetchAdminListings,
   fetchAdmins,
+  fetchAdminStats,
   fetchProfiles,
   reviewListing,
   verifyCompany,
@@ -16,6 +18,7 @@ import { useAuth } from '../../store/useAuth'
 import {
   AdminsTab,
   AdminSearch,
+  AdminStatsOverview,
   AdminTabs,
   CompaniesVerificationTab,
   ListingsModerationTab,
@@ -34,10 +37,12 @@ export function AdminPage() {
     items,
     admins,
     profiles,
+    stats,
     status,
     adminsStatus,
     profilesStatus,
     actionStatus,
+    statsStatus,
     listingsError,
     adminsError,
     profilesError,
@@ -48,9 +53,11 @@ export function AdminPage() {
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState(null)
   const [selectedCompanyId, setSelectedCompanyId] = useState(null)
+  const [selectedUserId, setSelectedUserId] = useState(null)
   const [rejectionReason, setRejectionReason] = useState('')
   const [publicPrice, setPublicPrice] = useState('')
   const [companyReason, setCompanyReason] = useState('')
+  const [userStatusReason, setUserStatusReason] = useState('')
   const [adminEmail, setAdminEmail] = useState('')
   const [maintenanceCursor, setMaintenanceCursor] = useState('')
   const [maintenanceLoading, setMaintenanceLoading] = useState(false)
@@ -61,6 +68,7 @@ export function AdminPage() {
     dispatch(fetchAdminListings())
     dispatch(fetchProfiles())
     dispatch(fetchAdmins())
+    dispatch(fetchAdminStats())
   }, [dispatch])
 
   const {
@@ -71,6 +79,7 @@ export function AdminPage() {
     listingCounts,
     selected,
     selectedCompany,
+    selectedUser,
     visibleCompanies,
     visibleItems,
     visibleProfiles,
@@ -83,6 +92,7 @@ export function AdminPage() {
     search,
     selectedCompanyId,
     selectedId,
+    selectedUserId,
     status,
   })
 
@@ -125,6 +135,17 @@ export function AdminPage() {
     }
   }
 
+  const updateUserStatus = async nextStatus => {
+    if (!selectedUser) return
+    if (nextStatus === 'suspended' && !userStatusReason.trim()) return
+    try {
+      await dispatch(changeUserStatus({ uid: selectedUser.uid, status: nextStatus, reason: userStatusReason })).unwrap()
+      setUserStatusReason('')
+    } catch {
+      // The slice exposes the callable error in the dashboard.
+    }
+  }
+
   const changeTab = tab => {
     setActiveTab(tab)
     setSearch('')
@@ -144,6 +165,11 @@ export function AdminPage() {
   const selectCompany = uid => {
     setSelectedCompanyId(uid)
     setCompanyReason('')
+  }
+
+  const selectUser = uid => {
+    setSelectedUserId(uid)
+    setUserStatusReason('')
   }
 
   const runSearchBackfill = async dryRun => {
@@ -179,6 +205,8 @@ export function AdminPage() {
             </div>
             <span className={styles.secure}><ShieldCheck size={17} />{t('admin.secure')}</span>
           </div>
+
+          <AdminStatsOverview loading={statsStatus === 'idle' || statsStatus === 'loading'} stats={stats} t={t} />
 
           <AdminTabs activeTab={activeTab} onChange={changeTab} t={t} />
           <AdminSearch activeTab={activeTab} onChange={setSearch} search={search} t={t} />
@@ -247,9 +275,15 @@ export function AdminPage() {
 
           {activeTab === 'users' && (
             <UsersTab
+              acting={acting}
               error={profilesError}
               loading={loadingProfiles}
+              onSelectUser={selectUser}
+              onUpdateUserStatus={updateUserStatus}
+              onUserStatusReasonChange={setUserStatusReason}
+              selectedUser={selectedUser}
               t={t}
+              userStatusReason={userStatusReason}
               visibleProfiles={visibleProfiles}
             />
           )}

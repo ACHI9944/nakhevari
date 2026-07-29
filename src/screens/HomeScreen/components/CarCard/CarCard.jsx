@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, CalendarDays, Clock3, Fuel, Gauge, Zap } from 'lucide-react'
-import { Button } from '../../../../components'
+import { Button, FavoriteButton } from '../../../../components'
 import styles from './CarCard.module.css'
 
 const Fact = ({ icon: Icon, children }) => (
@@ -23,11 +23,14 @@ export function CarCard({ car }) {
 
   return (
     <article className={styles.card}>
-      <button onClick={() => navigate(detailPath)} className={styles.imageButton}>
-        <img src={car.image} alt={car.title} className={styles.image} />
-        <span className={styles.status}>{car.transportStatus || t('home.inTransit')}</span>
-        <span className={styles.saving}>{car.saving}</span>
-      </button>
+      <div className={styles.imageWrap}>
+        <button onClick={() => navigate(detailPath)} className={styles.imageButton}>
+          <img src={car.image} alt={car.title} className={styles.image} />
+          <span className={styles.status}>{car.transportStatus || t('home.inTransit')}</span>
+          <span className={styles.saving}>{car.saving}</span>
+        </button>
+        <FavoriteButton listingId={car.id} className={styles.favorite} />
+      </div>
       <div className={styles.body}>
         <div className={styles.header}>
           <h3 className={styles.title}>{car.title}</h3>

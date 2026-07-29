@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button, Footer, Header } from '../../components'
+import { Button, FavoriteButton, Footer, Header } from '../../components'
 import { useUsdGelRate } from '../../hooks/useUsdGelRate'
 import { fetchListing } from '../../store/listingsSlice'
 import {
@@ -103,10 +103,13 @@ export function ListingDetail() {
           <aside>
             <div className={styles.card}>
               <div className={styles.summaryTop}>
-                <span className={styles.savingBadge}>
-                  {car.saving} {t('listing.compared')}
-                </span>
-                <span className={styles.idText}>ID: {id.slice(0, 8)}</span>
+                <div className={styles.summaryTopLeft}>
+                  <span className={styles.savingBadge}>
+                    {car.saving} {t('listing.compared')}
+                  </span>
+                  <span className={styles.idText}>ID: {id.slice(0, 8)}</span>
+                </div>
+                <FavoriteButton listingId={id} />
               </div>
               <h1 className={styles.title}>
                 {car.title}

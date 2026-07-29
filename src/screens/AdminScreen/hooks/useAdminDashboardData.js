@@ -9,6 +9,7 @@ export function useAdminDashboardData({
   search,
   selectedCompanyId,
   selectedId,
+  selectedUserId,
   status,
 }) {
   const listingCounts = useMemo(() => ({
@@ -52,6 +53,7 @@ export function useAdminDashboardData({
     loadingProfiles: profilesStatus === 'idle' || profilesStatus === 'loading',
     selected: items.find(item => item.id === selectedId) || visibleItems[0] || null,
     selectedCompany: companies.find(item => item.uid === selectedCompanyId) || visibleCompanies[0] || null,
+    selectedUser: profiles.find(item => item.uid === selectedUserId) || visibleProfiles[0] || null,
     visibleCompanies,
     visibleItems,
     visibleProfiles,

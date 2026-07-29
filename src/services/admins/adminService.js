@@ -12,3 +12,9 @@ export async function setAdminAccess({ email, enabled }) {
   const result = await callable({ email, enabled })
   return result.data
 }
+
+export async function getAdminStats() {
+  const callable = httpsCallable(functions, 'getAdminStats')
+  const result = await callable()
+  return result.data
+}

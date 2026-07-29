@@ -133,6 +133,12 @@
   margin-bottom: 16px;
 }
 
+.summaryTopLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .savingBadge {
   border-radius: 8px;
   background: var(--color-brand-soft);
