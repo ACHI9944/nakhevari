@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Eye, EyeOff, LockKeyhole } from 'lucide-react'
 import styles from './AuthPasswordFields.module.css'
 
@@ -22,6 +23,11 @@ export function AuthPasswordFields({ mode, showPassword, onTogglePassword, t }) 
             {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
           </button>
         </div>
+        {mode === 'login' && (
+          <Link to="/forgot-password" className={styles.forgotPassword}>
+            {t('auth.forgotPassword')}
+          </Link>
+        )}
       </label>
       {mode === 'register' && (
         <label>

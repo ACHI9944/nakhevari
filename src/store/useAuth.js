@@ -6,6 +6,7 @@ import {
   refreshUser as refreshUserThunk,
   registerUser,
   resendEmailVerification as resendEmailVerificationThunk,
+  resetPassword as resetPasswordThunk,
   completeUserProfile,
 } from './authSlice'
 
@@ -24,6 +25,7 @@ export function useAuth() {
     register: data => dispatch(registerUser(data)).unwrap(),
     refreshUser: () => dispatch(refreshUserThunk()).unwrap(),
     resendEmailVerification: () => dispatch(resendEmailVerificationThunk()).unwrap(),
+    resetPassword: email => dispatch(resetPasswordThunk(email)).unwrap(),
     logout: () => dispatch(logoutUser()).unwrap(),
     completeProfile: data => dispatch(completeUserProfile(data)).unwrap(),
   }

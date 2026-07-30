@@ -5,6 +5,7 @@ import {
   getIdTokenResult,
   reload,
   sendEmailVerification,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -162,6 +163,15 @@ export const resendEmailVerification = createAsyncThunk('auth/resendEmailVerific
 
 export const logoutUser = createAsyncThunk('auth/logout', async () => {
   await signOut(auth)
+})
+
+// Treat auth/user-not-found as success so the UI never reveals whether an email is registered.
+export const resetPassword = createAsyncThunk('auth/resetPassword', async email => {
+  try {
+    await sendPasswordResetEmail(auth, email, { url: `${window.location.origin}/auth` })
+  } catch (err) {
+    if (err.code !== 'auth/user-not-found') throw err
+  }
 })
 
 const authSlice = createSlice({
