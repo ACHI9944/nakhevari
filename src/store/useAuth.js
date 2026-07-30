@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import {
+  confirmReset as confirmResetThunk,
   loginUser,
   loginWithGoogle as loginWithGoogleThunk,
   logoutUser,
@@ -7,6 +8,7 @@ import {
   registerUser,
   resendEmailVerification as resendEmailVerificationThunk,
   resetPassword as resetPasswordThunk,
+  verifyResetCode as verifyResetCodeThunk,
   completeUserProfile,
 } from './authSlice'
 
@@ -26,6 +28,8 @@ export function useAuth() {
     refreshUser: () => dispatch(refreshUserThunk()).unwrap(),
     resendEmailVerification: () => dispatch(resendEmailVerificationThunk()).unwrap(),
     resetPassword: email => dispatch(resetPasswordThunk(email)).unwrap(),
+    verifyResetCode: oobCode => dispatch(verifyResetCodeThunk(oobCode)).unwrap(),
+    confirmReset: (oobCode, newPassword) => dispatch(confirmResetThunk({ oobCode, newPassword })).unwrap(),
     logout: () => dispatch(logoutUser()).unwrap(),
     completeProfile: data => dispatch(completeUserProfile(data)).unwrap(),
   }

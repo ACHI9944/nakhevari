@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import {
+  confirmPasswordReset,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   getIdTokenResult,
@@ -10,6 +11,7 @@ import {
   signInWithPopup,
   signOut,
   updateProfile,
+  verifyPasswordResetCode,
 } from 'firebase/auth'
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { auth, db } from '../config/firebase'
@@ -168,10 +170,20 @@ export const logoutUser = createAsyncThunk('auth/logout', async () => {
 // Treat auth/user-not-found as success so the UI never reveals whether an email is registered.
 export const resetPassword = createAsyncThunk('auth/resetPassword', async email => {
   try {
-    await sendPasswordResetEmail(auth, email, { url: `${window.location.origin}/auth` })
+    await sendPasswordResetEmail(auth, email, {
+      url: `${window.location.origin}/reset-password`,
+      handleCodeInApp: true,
+    })
   } catch (err) {
     if (err.code !== 'auth/user-not-found') throw err
   }
+})
+
+export const verifyResetCode = createAsyncThunk('auth/verifyResetCode', async oobCode =>
+  verifyPasswordResetCode(auth, oobCode))
+
+export const confirmReset = createAsyncThunk('auth/confirmReset', async ({ oobCode, newPassword }) => {
+  await confirmPasswordReset(auth, oobCode, newPassword)
 })
 
 const authSlice = createSlice({

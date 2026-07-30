@@ -27,6 +27,7 @@ const AddListing = lazyWithRecovery('add-listing', () => import('../screens/AddL
 const AccountPage = lazyWithRecovery('account', () => import('../screens/AccountScreen/AccountScreen').then(module => ({ default: module.AccountPage })))
 const AuthPage = lazyWithRecovery('auth', () => import('../screens/AuthScreen/AuthScreen').then(module => ({ default: module.AuthPage })))
 const ForgotPasswordPage = lazyWithRecovery('forgot-password', () => import('../screens/ForgotPasswordScreen/ForgotPasswordScreen').then(module => ({ default: module.ForgotPasswordPage })))
+const ResetPasswordPage = lazyWithRecovery('reset-password', () => import('../screens/ResetPasswordScreen/ResetPasswordScreen').then(module => ({ default: module.ResetPasswordPage })))
 const ListingDetail = lazyWithRecovery('listing-detail', () => import('../screens/ListingDetailScreen/ListingDetailScreen').then(module => ({ default: module.ListingDetail })))
 const VerifyEmailPage = lazyWithRecovery('verify-email', () => import('../screens/VerifyEmailScreen/VerifyEmailScreen').then(module => ({ default: module.VerifyEmailPage })))
 const CompleteProfilePage = lazyWithRecovery('complete-profile', () => import('../screens/CompleteProfileScreen/CompleteProfileScreen').then(module => ({ default: module.CompleteProfilePage })))
@@ -99,6 +100,7 @@ export function AppRoutes() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         </Route>
         <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/complete-profile" element={<CompleteProfilePage />} />
         <Route path="/listing/:id" element={<ListingDetailRoute />} />
         <Route element={<RequireVerifiedUser />}>
