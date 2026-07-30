@@ -14,7 +14,7 @@ export function useListingPhotos({ onError, onValid }) {
   }, [photos])
 
   useEffect(() => () => {
-    photosRef.current.forEach(photo => URL.revokeObjectURL(photo.preview))
+    photosRef.current.forEach(photo => { if (!photo.existing) URL.revokeObjectURL(photo.preview) })
   }, [])
 
   const addPhotos = event => {
@@ -32,6 +32,7 @@ export function useListingPhotos({ onError, onValid }) {
       const additions = files.slice(0, availableSlots).map(file => ({
         file,
         preview: URL.createObjectURL(file),
+        existing: false,
       }))
       return [...current, ...additions]
     })
@@ -40,9 +41,17 @@ export function useListingPhotos({ onError, onValid }) {
   }
 
   const removePhoto = index => setPhotos(current => {
-    URL.revokeObjectURL(current[index].preview)
+    const photo = current[index]
+    if (!photo.existing) URL.revokeObjectURL(photo.preview)
     return current.filter((_, photoIndex) => photoIndex !== index)
   })
+
+  // Loads an existing listing's already-uploaded photos (edit mode) as
+  // "existing" entries — these have no local File/preview to revoke and are
+  // kept as-is unless the seller removes them.
+  const setExistingPhotos = existingPhotos => {
+    setPhotos(existingPhotos.map(photo => ({ ...photo, existing: true })))
+  }
 
   return {
     addPhotos,
@@ -50,5 +59,6 @@ export function useListingPhotos({ onError, onValid }) {
     photoInput,
     photos,
     removePhoto,
+    setExistingPhotos,
   }
 }

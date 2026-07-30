@@ -51,6 +51,16 @@
   color: var(--color-brand);
 }
 
+.statusUnpublished {
+  background: var(--color-page-muted);
+  color: var(--color-text-muted);
+}
+
+.statusSold {
+  background: var(--color-success-soft);
+  color: var(--color-success-strong);
+}
+
 .error {
   border-radius: 12px;
   background: var(--color-danger-soft);
@@ -137,6 +147,13 @@
   font-weight: 600;
 }
 
+.itemActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.editButton,
 .deleteButton {
   display: grid;
   width: 40px;
@@ -146,6 +163,11 @@
   border-radius: 12px;
   color: var(--color-text-subtle);
   transition: background 0.2s ease, color 0.2s ease;
+}
+
+.editButton:hover {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
 }
 
 .deleteButton:hover {

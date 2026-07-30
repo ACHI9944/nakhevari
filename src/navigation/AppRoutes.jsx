@@ -77,6 +77,11 @@ function ListingDetailRoute() {
   return <ListingDetail key={id} />
 }
 
+function EditListingRoute() {
+  const { id } = useParams()
+  return <AddListing key={id} />
+}
+
 function RequireAdmin() {
   const { isAdmin } = useAuth()
   return isAdmin ? <Outlet /> : <Navigate to="/account" replace />
@@ -96,6 +101,7 @@ export function AppRoutes() {
         <Route path="/listing/:id" element={<ListingDetailRoute />} />
         <Route element={<RequireVerifiedUser />}>
           <Route path="/add" element={<AddListing />} />
+          <Route path="/edit/:id" element={<EditListingRoute />} />
           <Route path="/account" element={<AccountPage />} />
           <Route element={<RequireAdmin />}>
             <Route path="/admin" element={<AdminPage />} />

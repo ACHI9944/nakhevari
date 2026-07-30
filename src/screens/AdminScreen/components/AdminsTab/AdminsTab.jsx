@@ -1,5 +1,6 @@
 import { ShieldCheck, UserMinus, UserPlus } from 'lucide-react'
 import { Button } from '../../../../components'
+import { PRIMARY_ADMIN_EMAIL } from '../../../../config/adminConfig'
 import styles from '../../AdminScreen.module.css'
 
 export function AdminsTab({
@@ -45,21 +46,31 @@ export function AdminsTab({
         <div className={styles.adminList}>
           {adminsStatus === 'loading' ? (
             <span className={styles.muted}>{t('common.loading')}</span>
-          ) : admins.map(admin => (
-            <span key={admin.uid} className={styles.adminChip}>
-              <ShieldCheck size={14} className={styles.brandIcon} />
-              {admin.email}
-              <button
-                type="button"
-                onClick={() => onUpdateAdmin(admin.email, false)}
-                disabled={acting || admin.uid === currentUserId}
-                title={admin.uid === currentUserId ? t('admin.admins.self') : t('admin.admins.remove')}
-                className={styles.removeAdmin}
-              >
-                <UserMinus size={15} />
-              </button>
-            </span>
-          ))}
+          ) : admins.map(admin => {
+            const isSelf = admin.uid === currentUserId
+            const isPrimary = admin.email.toLowerCase() === PRIMARY_ADMIN_EMAIL
+            const removeTitle = isSelf
+              ? t('admin.admins.self')
+              : isPrimary
+                ? t('admin.admins.primary')
+                : t('admin.admins.remove')
+
+            return (
+              <span key={admin.uid} className={styles.adminChip}>
+                <ShieldCheck size={14} className={styles.brandIcon} />
+                {admin.email}
+                <button
+                  type="button"
+                  onClick={() => onUpdateAdmin(admin.email, false)}
+                  disabled={acting || isSelf || isPrimary}
+                  title={removeTitle}
+                  className={styles.removeAdmin}
+                >
+                  <UserMinus size={15} />
+                </button>
+              </span>
+            )
+          })}
         </div>
       </section>
     </>

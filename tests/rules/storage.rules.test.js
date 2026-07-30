@@ -80,9 +80,9 @@ describe('listing-images/{userId}/{listingId}/{fileName} create rule', () => {
     await assertFails(uploadBytes(ref(owner.storage(), filePath), oversizedFile, { contentType: 'image/jpeg' }))
   })
 
-  it('rejects uploads once the matching listing is no longer pending', async () => {
+  it('rejects uploads once the matching listing is sold', async () => {
     await testEnv.withSecurityRulesDisabled(async context => {
-      await setDoc(doc(context.firestore(), 'listings', listingId), { ...baseListing, status: 'published' })
+      await setDoc(doc(context.firestore(), 'listings', listingId), { ...baseListing, status: 'sold' })
     })
     const owner = testEnv.authenticatedContext(ownerUid, { email: 'owner@example.com', email_verified: true })
 
@@ -92,6 +92,15 @@ describe('listing-images/{userId}/{listingId}/{fileName} create rule', () => {
   it('lets the owner keep uploading while the matching listing is still pending', async () => {
     await testEnv.withSecurityRulesDisabled(async context => {
       await setDoc(doc(context.firestore(), 'listings', listingId), baseListing)
+    })
+    const owner = testEnv.authenticatedContext(ownerUid, { email: 'owner@example.com', email_verified: true })
+
+    await assertSucceeds(uploadBytes(ref(owner.storage(), filePath), smallFile, { contentType: 'image/jpeg' }))
+  })
+
+  it.each(['published', 'rejected', 'unpublished'])('lets the owner upload while the matching listing is %s', async status => {
+    await testEnv.withSecurityRulesDisabled(async context => {
+      await setDoc(doc(context.firestore(), 'listings', listingId), { ...baseListing, status })
     })
     const owner = testEnv.authenticatedContext(ownerUid, { email: 'owner@example.com', email_verified: true })
 
@@ -126,13 +135,22 @@ describe('listing-images/{userId}/{listingId}/{fileName} delete rule', () => {
     await assertSucceeds(deleteObject(ref(owner.storage(), filePath)))
   })
 
-  it('rejects delete once the listing is no longer editable', async () => {
+  it('rejects delete once the listing is sold', async () => {
     await testEnv.withSecurityRulesDisabled(async context => {
-      await setDoc(doc(context.firestore(), 'listings', listingId), { ...baseListing, status: 'published' })
+      await setDoc(doc(context.firestore(), 'listings', listingId), { ...baseListing, status: 'sold' })
     })
     const owner = testEnv.authenticatedContext(ownerUid, { email: 'owner@example.com', email_verified: true })
 
     await assertFails(deleteObject(ref(owner.storage(), filePath)))
+  })
+
+  it.each(['published', 'rejected', 'unpublished'])('lets the owner delete while the listing is %s', async status => {
+    await testEnv.withSecurityRulesDisabled(async context => {
+      await setDoc(doc(context.firestore(), 'listings', listingId), { ...baseListing, status })
+    })
+    const owner = testEnv.authenticatedContext(ownerUid, { email: 'owner@example.com', email_verified: true })
+
+    await assertSucceeds(deleteObject(ref(owner.storage(), filePath)))
   })
 
   it('rejects delete from a non-owner', async () => {

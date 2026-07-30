@@ -276,18 +276,23 @@ service cloud.firestore {
           'publicPrice', 'vinSearch', 'makeModelSearch'
         ])
         && validListingData(request.resource.data);
+      // Owner edits on a listing that is already live (published/rejected/unpublished)
+      // always force status back to 'pending' so an admin re-reviews the change;
+      // publicPrice/reviewedBy/reviewedAt/rejectionReason stay out of the allowed
+      // diff keys below so the owner's write can never touch admin-set moderation
+      // fields, even though they're left stale on the doc until the next review.
       allow update: if signedIn()
           && resource.data.ownerId == request.auth.uid
-          && resource.data.status == 'pending'
+          && resource.data.status in ['pending', 'published', 'rejected', 'unpublished']
           && request.resource.data.ownerId == resource.data.ownerId
-          && request.resource.data.status == resource.data.status
+          && request.resource.data.status == 'pending'
           && canUseSellerType(request.resource.data.sellerType)
           && request.resource.data.createdAt == resource.data.createdAt
           && validListingData(request.resource.data)
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
             'make', 'model', 'year', 'vin', 'mileage', 'fuel',
             'transmission', 'transportStatus', 'arrivalDate',
-            'damageDescription', 'sellerType',
+            'damageDescription', 'sellerType', 'status',
             'updatedAt', 'image', 'images', 'imagePath', 'imagePaths', 'market',
             'vinSearch', 'makeModelSearch'
           ]);
@@ -306,7 +311,7 @@ service cloud.firestore {
           && validSellerInfo(request.resource.data);
         allow update: if signedIn()
           && resource.data.ownerId == request.auth.uid
-          && get(/databases/$(database)/documents/listings/$(listingId)).data.status == 'pending'
+          && get(/databases/$(database)/documents/listings/$(listingId)).data.status in ['pending', 'published', 'rejected', 'unpublished']
           && request.resource.data.ownerId == resource.data.ownerId
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sellerName', 'phone', 'sellerPrice', 'ownerEmail', 'companyName', 'companyVerificationStatus', 'updatedAt'])
           && validSellerInfo(request.resource.data);

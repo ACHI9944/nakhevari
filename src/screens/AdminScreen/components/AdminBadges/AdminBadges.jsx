@@ -12,13 +12,15 @@ export function CompanyBadge({ status, t }) {
 }
 
 export function StatusBadge({ status, label }) {
-  const className = status === 'published'
+  const className = status === 'published' || status === 'sold'
     ? styles.badgePublished
     : status === 'rejected'
       ? styles.badgeRejected
-      : status === 'draft'
-        ? styles.badgeDraft
-        : styles.badgePending
+      : status === 'unpublished'
+        ? styles.badgeUnpublished
+        : status === 'draft'
+          ? styles.badgeDraft
+          : styles.badgePending
 
   return <span className={cx(styles.badge, className)}>{label}</span>
 }

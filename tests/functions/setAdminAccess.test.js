@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import firebaseLib from '../../functions/lib/firebase.js'
+import configLib from '../../functions/lib/config.js'
 import setAdminAccessModule from '../../functions/admins/setAdminAccess.js'
 import { callableRequest, createAuthUser, expectHttpsError } from './helpers.js'
 
 const { auth, db } = firebaseLib
+const { PRIMARY_ADMIN_EMAIL } = configLib
 const { setAdminAccess } = setAdminAccessModule
 
 async function latestAdminAccessEvent(targetUid) {
@@ -50,6 +52,16 @@ describe('setAdminAccess', () => {
 
     await expectHttpsError(
       setAdminAccess.run(callableRequest(admin, { email: admin.email, enabled: false })),
+      'failed-precondition',
+    )
+  })
+
+  it('rejects any admin trying to remove the primary administrator', async () => {
+    const primary = await createAuthUser({ admin: true, email: PRIMARY_ADMIN_EMAIL })
+    const otherAdmin = await createAuthUser({ admin: true })
+
+    await expectHttpsError(
+      setAdminAccess.run(callableRequest(otherAdmin, { email: primary.email, enabled: false })),
       'failed-precondition',
     )
   })

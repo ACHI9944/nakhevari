@@ -1,6 +1,6 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { assertAdmin } = require('../lib/auth')
-const { REGION } = require('../lib/config')
+const { PRIMARY_ADMIN_EMAIL, REGION } = require('../lib/config')
 const { auth, db, FieldValue } = require('../lib/firebase')
 const { wrapCallable } = require('../lib/https')
 
@@ -23,6 +23,10 @@ exports.setAdminAccess = onCall({ region: REGION }, wrapCallable(async request =
 
   if (!enabled && target.uid === request.auth.uid) {
     throw new HttpsError('failed-precondition', 'You cannot remove your own administrator access.')
+  }
+
+  if (!enabled && (target.email || '').toLowerCase() === PRIMARY_ADMIN_EMAIL) {
+    throw new HttpsError('failed-precondition', 'The primary administrator cannot be removed.')
   }
 
   const claims = { ...(target.customClaims || {}) }

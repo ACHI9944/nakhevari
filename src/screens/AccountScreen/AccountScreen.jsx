@@ -41,6 +41,8 @@ export function AccountPage() {
     published: t('account.listingStatus.published'),
     rejected: t('account.listingStatus.rejected'),
     draft: t('account.listingStatus.draft'),
+    unpublished: t('account.listingStatus.unpublished'),
+    sold: t('account.listingStatus.sold'),
   }), [t])
 
   const companyStatus = profile?.companyVerificationStatus || (profile?.accountType === 'company' ? 'pending' : 'not_required')
@@ -176,6 +178,7 @@ export function AccountPage() {
               listings={listings}
               loading={listingsLoading}
               onAdd={() => navigate('/add')}
+              onEdit={id => navigate(`/edit/${id}`)}
               onRemove={remove}
               statusLabels={statusLabels}
               t={t}

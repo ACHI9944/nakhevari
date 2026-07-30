@@ -1,23 +1,27 @@
 import { cx } from '../../../../utils/classNames'
-import { CheckCircle2, Clock3, XCircle } from 'lucide-react'
+import { CheckCircle2, Clock3, DollarSign, EyeOff, PackageCheck, Trash2, XCircle } from 'lucide-react'
 import { Button } from '../../../../components'
 import { StatusBadge } from '../AdminBadges/AdminBadges'
 import { EmptyState } from '../EmptyState/EmptyState'
 import styles from '../../AdminScreen.module.css'
 
-const listingStatuses = ['pending', 'published', 'rejected', 'draft', 'all']
+const listingStatuses = ['pending', 'published', 'unpublished', 'sold', 'rejected', 'draft', 'all']
 
 export function ListingsModerationTab({
   acting,
+  deleteReason,
   error,
   filter,
   listingCounts,
   loading,
+  onDeleteListing,
+  onDeleteReasonChange,
   onFilterChange,
   onModerate,
   onPublicPriceChange,
   onRejectionReasonChange,
   onSelect,
+  onUpdatePrice,
   publicPrice,
   rejectionReason,
   selected,
@@ -68,9 +72,13 @@ export function ListingsModerationTab({
           {selected && (
             <ListingReviewPanel
               acting={acting}
+              deleteReason={deleteReason}
+              onDeleteListing={onDeleteListing}
+              onDeleteReasonChange={onDeleteReasonChange}
               onModerate={onModerate}
               onPublicPriceChange={onPublicPriceChange}
               onRejectionReasonChange={onRejectionReasonChange}
+              onUpdatePrice={onUpdatePrice}
               publicPrice={publicPrice}
               rejectionReason={rejectionReason}
               selected={selected}
@@ -83,7 +91,20 @@ export function ListingsModerationTab({
   )
 }
 
-function ListingReviewPanel({ acting, onModerate, onPublicPriceChange, onRejectionReasonChange, publicPrice, rejectionReason, selected, t }) {
+function ListingReviewPanel({
+  acting,
+  deleteReason,
+  onDeleteListing,
+  onDeleteReasonChange,
+  onModerate,
+  onPublicPriceChange,
+  onRejectionReasonChange,
+  onUpdatePrice,
+  publicPrice,
+  rejectionReason,
+  selected,
+  t,
+}) {
   return (
     <aside className={styles.reviewPanel}>
       <div className={styles.asideHeader}>
@@ -97,6 +118,7 @@ function ListingReviewPanel({ acting, onModerate, onPublicPriceChange, onRejecti
         {[
           ['vin', selected.vin],
           ['price', `$${Number(selected.sellerPrice).toLocaleString()}`],
+          ...(selected.publicPrice ? [['publicPrice', `$${Number(selected.publicPrice).toLocaleString()}`]] : []),
           ['mileage', Number(selected.mileage).toLocaleString()],
           ['arrival', selected.arrivalDate],
           ['seller', selected.sellerName],
@@ -150,11 +172,78 @@ function ListingReviewPanel({ acting, onModerate, onPublicPriceChange, onRejecti
           </div>
         </div>
       )}
-      {selected.status !== 'pending' && (
+      {selected.status === 'published' && (
+        <div className={styles.reviewActions}>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={publicPrice}
+            onChange={event => onPublicPriceChange(event.target.value)}
+            className={styles.field}
+            placeholder={t('admin.publicPricePlaceholder')}
+          />
+          <div className={styles.buttonGrid}>
+            <Button onClick={onUpdatePrice} disabled={acting || !(Number(publicPrice) > 0)}>
+              <DollarSign size={17} />{t('admin.updatePrice')}
+            </Button>
+          </div>
+          <div className={styles.buttonGrid}>
+            <Button variant="outline" onClick={() => onModerate('unpublished')} disabled={acting}>
+              <EyeOff size={17} />{t('admin.unpublish')}
+            </Button>
+            <Button variant="outline" onClick={() => onModerate('sold')} disabled={acting}>
+              <PackageCheck size={17} />{t('admin.markSold')}
+            </Button>
+          </div>
+        </div>
+      )}
+      {selected.status === 'unpublished' && (
+        <div className={styles.reviewActions}>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={publicPrice}
+            onChange={event => onPublicPriceChange(event.target.value)}
+            className={styles.field}
+            placeholder={t('admin.publicPricePlaceholder')}
+          />
+          <div className={styles.buttonGrid}>
+            <Button onClick={() => onModerate('published')} disabled={acting || !(Number(publicPrice) > 0)}>
+              <CheckCircle2 size={17} />{t('admin.publish')}
+            </Button>
+            <Button variant="outline" onClick={() => onModerate('sold')} disabled={acting}>
+              <PackageCheck size={17} />{t('admin.markSold')}
+            </Button>
+          </div>
+        </div>
+      )}
+      {['rejected', 'draft', 'sold'].includes(selected.status) && (
         <div className={styles.reviewed}>
           <Clock3 size={16} />{t('admin.reviewed')}
         </div>
       )}
+      <div className={styles.reviewActions}>
+        <textarea
+          value={deleteReason}
+          onChange={event => onDeleteReasonChange(event.target.value)}
+          maxLength={500}
+          rows={2}
+          className={styles.textarea}
+          placeholder={t('admin.deleteReason')}
+        />
+        <div className={styles.buttonGrid}>
+          <Button
+            variant="outline"
+            onClick={onDeleteListing}
+            disabled={acting || !deleteReason.trim()}
+            className={styles.dangerButton}
+          >
+            <Trash2 size={17} />{t('admin.deleteListing')}
+          </Button>
+        </div>
+      </div>
     </aside>
   )
 }

@@ -5,6 +5,7 @@ import styles from './VehicleFormSections.module.css'
 
 export function VehicleFormSections({
   arrivalDate,
+  defaultValues,
   firstArrivalDate,
   lastArrivalDate,
   makeId,
@@ -81,6 +82,7 @@ export function VehicleFormSections({
                 min={type === 'number' ? 0 : undefined}
                 placeholder={label}
                 required
+                defaultValue={defaultValues?.[name]}
               />
             )}
           </div>

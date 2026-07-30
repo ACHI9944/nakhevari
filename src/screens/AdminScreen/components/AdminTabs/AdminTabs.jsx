@@ -1,7 +1,7 @@
 import { cx } from '../../../../utils/classNames'
 import styles from '../../AdminScreen.module.css'
 
-const tabs = ['listings', 'companies', 'users', 'admins']
+const tabs = ['listings', 'companies', 'users', 'admins', 'stats']
 
 export function AdminTabs({ activeTab, onChange, t }) {
   return (

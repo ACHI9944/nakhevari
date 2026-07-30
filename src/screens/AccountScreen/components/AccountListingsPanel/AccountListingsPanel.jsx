@@ -1,5 +1,5 @@
 import { cx } from '../../../../utils/classNames'
-import { BadgeCheck, CarFront, Clock3, Trash2 } from 'lucide-react'
+import { BadgeCheck, CarFront, Clock3, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '../../../../components'
 import styles from './AccountListingsPanel.module.css'
 
@@ -9,6 +9,7 @@ export function AccountListingsPanel({
   listings,
   loading,
   onAdd,
+  onEdit,
   onRemove,
   statusLabels,
   t,
@@ -32,6 +33,7 @@ export function AccountListingsPanel({
               key={item.id}
               item={item}
               deleting={deletingId === item.id}
+              onEdit={onEdit}
               onRemove={onRemove}
               statusLabels={statusLabels}
               t={t}
@@ -49,14 +51,19 @@ export function AccountListingsPanel({
   )
 }
 
-function ListingItem({ deleting, item, onRemove, statusLabels, t }) {
+function ListingItem({ deleting, item, onEdit, onRemove, statusLabels, t }) {
   const statusClass = item.status === 'published'
     ? styles.statusPublished
     : item.status === 'rejected'
       ? styles.statusRejected
-      : item.status === 'draft'
-        ? styles.statusDraft
-        : styles.statusPending
+      : item.status === 'unpublished'
+        ? styles.statusUnpublished
+        : item.status === 'sold'
+          ? styles.statusSold
+          : item.status === 'draft'
+            ? styles.statusDraft
+            : styles.statusPending
+  const editable = item.status !== 'sold'
 
   return (
     <article className={styles.listingItem}>
@@ -75,14 +82,25 @@ function ListingItem({ deleting, item, onRemove, statusLabels, t }) {
           <p className={styles.rejection}>{t('account.rejectionReason', { reason: item.rejectionReason })}</p>
         )}
       </div>
-      <button
-        onClick={() => onRemove(item.id)}
-        disabled={deleting}
-        className={styles.deleteButton}
-        aria-label={deleting ? t('account.deletingListing') : t('account.deleteListing')}
-      >
-        <Trash2 size={17} />
-      </button>
+      <div className={styles.itemActions}>
+        {editable && (
+          <button
+            onClick={() => onEdit(item.id)}
+            className={styles.editButton}
+            aria-label={t('account.editListing')}
+          >
+            <Pencil size={17} />
+          </button>
+        )}
+        <button
+          onClick={() => onRemove(item.id)}
+          disabled={deleting}
+          className={styles.deleteButton}
+          aria-label={deleting ? t('account.deletingListing') : t('account.deleteListing')}
+        >
+          <Trash2 size={17} />
+        </button>
+      </div>
     </article>
   )
 }

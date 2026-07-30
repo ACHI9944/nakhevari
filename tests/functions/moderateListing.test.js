@@ -140,4 +140,62 @@ describe('moderateListing', () => {
     const events = await db.collection('listingModerationEvents').where('listingId', '==', listingId).get()
     expect(events.docs[0].data().reason).toBe('Missing VIN photo')
   })
+
+  it('unpublishes a published listing', async () => {
+    const admin = await createAuthUser({ admin: true })
+    const { listingId } = await createPendingListing({ status: 'published', publicPrice: 17000 })
+
+    const result = await moderateListing.run(callableRequest(admin, { listingId, status: 'unpublished' }))
+    expect(result).toEqual({ listingId, status: 'unpublished' })
+
+    const listingSnapshot = await db.collection('listings').doc(listingId).get()
+    expect(listingSnapshot.data().status).toBe('unpublished')
+  })
+
+  it('marks a published listing as sold', async () => {
+    const admin = await createAuthUser({ admin: true })
+    const { listingId } = await createPendingListing({ status: 'published', publicPrice: 17000 })
+
+    const result = await moderateListing.run(callableRequest(admin, { listingId, status: 'sold' }))
+    expect(result).toEqual({ listingId, status: 'sold' })
+  })
+
+  it('republishes an unpublished listing with a new public price', async () => {
+    const admin = await createAuthUser({ admin: true })
+    const { listingId } = await createPendingListing({ status: 'unpublished', publicPrice: 17000 })
+
+    const result = await moderateListing.run(callableRequest(admin, { listingId, status: 'published', publicPrice: 18000 }))
+    expect(result).toEqual({ listingId, status: 'published' })
+
+    const listingSnapshot = await db.collection('listings').doc(listingId).get()
+    expect(listingSnapshot.data().publicPrice).toBe(18000)
+  })
+
+  it('marks an unpublished listing as sold', async () => {
+    const admin = await createAuthUser({ admin: true })
+    const { listingId } = await createPendingListing({ status: 'unpublished', publicPrice: 17000 })
+
+    const result = await moderateListing.run(callableRequest(admin, { listingId, status: 'sold' }))
+    expect(result).toEqual({ listingId, status: 'sold' })
+  })
+
+  it('rejects moderating a rejected listing', async () => {
+    const admin = await createAuthUser({ admin: true })
+    const { listingId } = await createPendingListing({ status: 'rejected' })
+
+    await expectHttpsError(
+      moderateListing.run(callableRequest(admin, { listingId, status: 'published', publicPrice: 17000 })),
+      'failed-precondition',
+    )
+  })
+
+  it('rejects moderating a sold listing', async () => {
+    const admin = await createAuthUser({ admin: true })
+    const { listingId } = await createPendingListing({ status: 'sold' })
+
+    await expectHttpsError(
+      moderateListing.run(callableRequest(admin, { listingId, status: 'published', publicPrice: 17000 })),
+      'failed-precondition',
+    )
+  })
 })

@@ -207,6 +207,35 @@ describe('listings/{listingId} update rule', () => {
 
     await assertFails(updateDoc(listingRef, { mileage: 31000 }))
   })
+
+  it.each(['published', 'rejected', 'unpublished'])('lets the owner edit a %s listing and forces it back to pending', async status => {
+    await testEnv.withSecurityRulesDisabled(async context => {
+      await updateDoc(doc(context.firestore(), 'listings', listingId), { status })
+    })
+    const owner = testEnv.authenticatedContext(ownerUid, { email: ownerEmail, email_verified: true })
+    const listingRef = doc(owner.firestore(), 'listings', listingId)
+
+    await assertSucceeds(updateDoc(listingRef, {
+      mileage: 31000,
+      status: 'pending',
+      updatedAt: new Date('2026-02-02'),
+    }))
+    let snapshot
+    await testEnv.withSecurityRulesDisabled(async context => {
+      snapshot = await getDoc(doc(context.firestore(), 'listings', listingId))
+    })
+    if (snapshot.data().status !== 'pending') throw new Error('Expected the listing to revert to pending.')
+  })
+
+  it('rejects edits once the listing is sold, even when the payload sets status back to pending', async () => {
+    await testEnv.withSecurityRulesDisabled(async context => {
+      await updateDoc(doc(context.firestore(), 'listings', listingId), { status: 'sold' })
+    })
+    const owner = testEnv.authenticatedContext(ownerUid, { email: ownerEmail, email_verified: true })
+    const listingRef = doc(owner.firestore(), 'listings', listingId)
+
+    await assertFails(updateDoc(listingRef, { mileage: 31000, status: 'pending' }))
+  })
 })
 
 describe('listings/{listingId}/private/sellerInfo rules', () => {
@@ -279,15 +308,26 @@ describe('listings/{listingId}/private/sellerInfo rules', () => {
     await assertSucceeds(updateDoc(sellerInfoRef, { sellerPrice: 16000 }))
   })
 
-  it('rejects updates once the listing is no longer pending', async () => {
+  it('rejects updates once the listing is sold', async () => {
     await testEnv.withSecurityRulesDisabled(async context => {
       await setDoc(doc(context.firestore(), 'listings', listingId, 'private', 'sellerInfo'), buildSellerInfo())
-      await updateDoc(doc(context.firestore(), 'listings', listingId), { status: 'published' })
+      await updateDoc(doc(context.firestore(), 'listings', listingId), { status: 'sold' })
     })
     const owner = testEnv.authenticatedContext(ownerUid, { email: ownerEmail, email_verified: true })
     const sellerInfoRef = doc(owner.firestore(), 'listings', listingId, 'private', 'sellerInfo')
 
     await assertFails(updateDoc(sellerInfoRef, { sellerPrice: 16000 }))
+  })
+
+  it.each(['published', 'rejected', 'unpublished'])('lets the owner update seller info while the listing is %s', async status => {
+    await testEnv.withSecurityRulesDisabled(async context => {
+      await setDoc(doc(context.firestore(), 'listings', listingId, 'private', 'sellerInfo'), buildSellerInfo())
+      await updateDoc(doc(context.firestore(), 'listings', listingId), { status })
+    })
+    const owner = testEnv.authenticatedContext(ownerUid, { email: ownerEmail, email_verified: true })
+    const sellerInfoRef = doc(owner.firestore(), 'listings', listingId, 'private', 'sellerInfo')
+
+    await assertSucceeds(updateDoc(sellerInfoRef, { sellerPrice: 16000 }))
   })
 
   it('rejects updates from a non-owner', async () => {

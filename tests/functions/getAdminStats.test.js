@@ -39,5 +39,6 @@ describe('getAdminStats', () => {
     expect(after.users.all).toBeGreaterThanOrEqual(before.users.all + 3)
     expect(after.users.active).toBe(after.users.all - after.users.suspended)
     expect(after.companies.verified).toBeGreaterThanOrEqual(before.companies.verified + 1)
+    expect(after.companies.all).toBeGreaterThanOrEqual(before.companies.all + 1)
   })
 })

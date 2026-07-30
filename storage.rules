@@ -17,7 +17,7 @@ service firebase.storage {
         return !firestore.exists(listingPath())
           || (
             firestore.get(listingPath()).data.ownerId == userId
-            && firestore.get(listingPath()).data.status in ['pending', 'draft']
+            && firestore.get(listingPath()).data.status in ['pending', 'draft', 'published', 'rejected', 'unpublished']
           );
       }
 

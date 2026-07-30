@@ -1,6 +1,6 @@
 import styles from './ContactSection.module.css'
 
-export function ContactSection({ sellerType, t }) {
+export function ContactSection({ defaultPhone, defaultSellerName, sellerType, t }) {
   const sellerTypeLabel = sellerType === 'company' ? t('common.company') : t('common.individual')
 
   return (
@@ -9,11 +9,11 @@ export function ContactSection({ sellerType, t }) {
       <div className={styles.grid}>
         <label>
           <span className={styles.label}>{t('common.name')}</span>
-          <input name="sellerName" className={styles.field} required placeholder={t('add.fullName')} />
+          <input name="sellerName" className={styles.field} required placeholder={t('add.fullName')} defaultValue={defaultSellerName} />
         </label>
         <label>
           <span className={styles.label}>{t('common.phone')}</span>
-          <input name="phone" className={styles.field} required placeholder="+995 5XX XX XX XX" />
+          <input name="phone" className={styles.field} required placeholder="+995 5XX XX XX XX" defaultValue={defaultPhone} />
         </label>
         <label>
           <span className={styles.label}>{t('add.sellerType')}</span>

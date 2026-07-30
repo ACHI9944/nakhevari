@@ -4,7 +4,7 @@ const { REGION } = require('../lib/config')
 const { db } = require('../lib/firebase')
 const { wrapCallable } = require('../lib/https')
 
-const listingStatuses = ['pending', 'published', 'rejected', 'draft']
+const listingStatuses = ['pending', 'published', 'rejected', 'draft', 'unpublished', 'sold']
 const companyStatuses = ['pending', 'verified', 'rejected']
 
 const count = async query => (await query.count().get()).data().count
@@ -22,12 +22,14 @@ exports.getAdminStats = onCall({ region: REGION }, wrapCallable(async request =>
     usersTotal,
     usersSuspended,
     companyCounts,
+    companiesTotal,
   ] = await Promise.all([
     Promise.all(listingStatuses.map(status => count(listingsRef.where('status', '==', status)))),
     count(listingsRef),
     count(usersRef),
     count(usersRef.where('profileStatus', '==', 'suspended')),
     Promise.all(companyStatuses.map(status => count(companiesRef.where('companyVerificationStatus', '==', status)))),
+    count(companiesRef),
   ])
 
   return {
@@ -40,6 +42,9 @@ exports.getAdminStats = onCall({ region: REGION }, wrapCallable(async request =>
       suspended: usersSuspended,
       all: usersTotal,
     },
-    companies: Object.fromEntries(companyStatuses.map((status, index) => [status, companyCounts[index]])),
+    companies: {
+      ...Object.fromEntries(companyStatuses.map((status, index) => [status, companyCounts[index]])),
+      all: companiesTotal,
+    },
   }
 }))

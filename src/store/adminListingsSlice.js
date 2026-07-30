@@ -3,7 +3,9 @@ import {
   getAdminListings,
 } from '../services/listings/listingService'
 import {
+  deleteListingAdmin,
   moderateListing,
+  updateListingPrice,
 } from '../services/listings/listingModerationService'
 import {
   getAdmins,
@@ -15,6 +17,8 @@ import { updateCompanyVerification } from '../services/companies/companyVerifica
 
 export const fetchAdminListings = createAsyncThunk('adminListings/fetch', () => getAdminListings('all'))
 export const reviewListing = createAsyncThunk('adminListings/review', moderateListing)
+export const changeListingPrice = createAsyncThunk('adminListings/changeListingPrice', updateListingPrice)
+export const removeListingAdmin = createAsyncThunk('adminListings/removeListingAdmin', deleteListingAdmin)
 export const fetchAdmins = createAsyncThunk('adminListings/fetchAdmins', getAdmins)
 export const changeAdminAccess = createAsyncThunk('adminListings/changeAdminAccess', setAdminAccess)
 export const fetchProfiles = createAsyncThunk('adminListings/fetchProfiles', getProfiles)
@@ -69,6 +73,31 @@ const adminListingsSlice = createSlice({
         state.actionStatus = 'succeeded'
       })
       .addCase(reviewListing.rejected, (state, action) => {
+        state.actionStatus = 'failed'
+        state.actionError = action.error.message
+      })
+      .addCase(changeListingPrice.pending, state => {
+        state.actionStatus = 'loading'
+        state.actionError = null
+      })
+      .addCase(changeListingPrice.fulfilled, (state, action) => {
+        const listing = state.items.find(item => item.id === action.payload.listingId)
+        if (listing) listing.publicPrice = action.payload.publicPrice
+        state.actionStatus = 'succeeded'
+      })
+      .addCase(changeListingPrice.rejected, (state, action) => {
+        state.actionStatus = 'failed'
+        state.actionError = action.error.message
+      })
+      .addCase(removeListingAdmin.pending, state => {
+        state.actionStatus = 'loading'
+        state.actionError = null
+      })
+      .addCase(removeListingAdmin.fulfilled, (state, action) => {
+        state.items = state.items.filter(item => item.id !== action.payload.listingId)
+        state.actionStatus = 'succeeded'
+      })
+      .addCase(removeListingAdmin.rejected, (state, action) => {
         state.actionStatus = 'failed'
         state.actionError = action.error.message
       })

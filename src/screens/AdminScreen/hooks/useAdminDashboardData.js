@@ -17,6 +17,8 @@ export function useAdminDashboardData({
     published: items.filter(item => item.status === 'published').length,
     rejected: items.filter(item => item.status === 'rejected').length,
     draft: items.filter(item => item.status === 'draft').length,
+    unpublished: items.filter(item => item.status === 'unpublished').length,
+    sold: items.filter(item => item.status === 'sold').length,
     all: items.length,
   }), [items])
 

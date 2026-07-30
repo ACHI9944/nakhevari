@@ -1,4 +1,6 @@
 const { moderateListing } = require('./listings/moderateListing')
+const { updateListingPrice } = require('./listings/updateListingPrice')
+const { deleteListingAdmin } = require('./listings/deleteListingAdmin')
 const { backfillListingSearchFields } = require('./listings/backfillListingSearchFields')
 const { backfillSellerPrivacySplit } = require('./listings/backfillSellerPrivacySplit')
 const { listAdmins } = require('./admins/listAdmins')
@@ -11,6 +13,8 @@ const { renderPage } = require('./rendering/renderPage')
 const { renderSitemap } = require('./rendering/renderSitemap')
 
 exports.moderateListing = moderateListing
+exports.updateListingPrice = updateListingPrice
+exports.deleteListingAdmin = deleteListingAdmin
 exports.backfillListingSearchFields = backfillListingSearchFields
 exports.backfillSellerPrivacySplit = backfillSellerPrivacySplit
 exports.listAdmins = listAdmins

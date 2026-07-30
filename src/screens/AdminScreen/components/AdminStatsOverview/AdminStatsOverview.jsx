@@ -1,13 +1,16 @@
 import { BarChart3 } from 'lucide-react'
 import styles from '../../AdminScreen.module.css'
 
-const listingRows = ['pending', 'published', 'rejected', 'draft', 'all'].map(key => [key, `admin.status.${key}`])
+const listingRows = ['pending', 'published', 'unpublished', 'sold', 'rejected', 'draft', 'all'].map(key => [key, `admin.status.${key}`])
 const userRows = [
   ['active', 'admin.profileStatus.active'],
   ['suspended', 'admin.profileStatus.suspended'],
   ['all', 'admin.status.all'],
 ]
-const companyRows = ['pending', 'verified', 'rejected'].map(key => [key, `account.companyStatus.${key}`])
+const companyRows = [
+  ...['pending', 'verified', 'rejected'].map(key => [key, `account.companyStatus.${key}`]),
+  ['all', 'admin.status.all'],
+]
 
 function StatsRow({ groupTitle, rows, t, values }) {
   return (
@@ -27,7 +30,7 @@ function StatsRow({ groupTitle, rows, t, values }) {
 
 export function AdminStatsOverview({ loading, stats, t }) {
   return (
-    <section className={styles.maintenance}>
+    <section className={styles.statsPanel}>
       <h2 className={styles.maintenanceTitle}><BarChart3 size={18} /> {t('admin.stats.title')}</h2>
       {loading && !stats ? (
         <div className={styles.loadingBox}>{t('common.loading')}</div>

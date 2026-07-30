@@ -3,6 +3,7 @@ import styles from './ConditionSection.module.css'
 
 export function ConditionSection({
   addPhotos,
+  defaultDamageDescription,
   maxPhotos,
   photoInput,
   photos,
@@ -19,6 +20,7 @@ export function ConditionSection({
           rows="5"
           className={styles.textarea}
           placeholder={t('add.damagePlaceholder')}
+          defaultValue={defaultDamageDescription}
         />
       </label>
       <div className={styles.photosBlock}>
@@ -26,8 +28,8 @@ export function ConditionSection({
         {photos.length > 0 && (
           <div className={styles.photosGrid}>
             {photos.map((photo, index) => (
-              <div key={photo.preview} className={styles.photoPreview}>
-                <img src={photo.preview} alt={t('add.photoPreview', { number: index + 1 })} className={styles.photoImage} />
+              <div key={photo.preview || photo.path} className={styles.photoPreview}>
+                <img src={photo.preview || photo.url} alt={t('add.photoPreview', { number: index + 1 })} className={styles.photoImage} />
                 {index === 0 && <span className={styles.coverBadge}>{t('add.coverPhoto')}</span>}
                 <button type="button" onClick={() => removePhoto(index)} aria-label={t('add.removePhoto')} className={styles.removePhoto}>
                   <X size={16} />

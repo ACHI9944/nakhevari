@@ -4,7 +4,12 @@ const { REGION } = require('../lib/config')
 const { db, FieldValue } = require('../lib/firebase')
 const { wrapCallable } = require('../lib/https')
 
-const allowedActions = new Set(['published', 'rejected'])
+const transitionsByStatus = {
+  pending: new Set(['published', 'rejected']),
+  published: new Set(['unpublished', 'sold']),
+  unpublished: new Set(['published', 'sold']),
+}
+const allowedActions = new Set(Object.values(transitionsByStatus).flatMap(set => [...set]))
 
 exports.moderateListing = onCall({ region: REGION }, wrapCallable(async request => {
   await assertAdmin(request)
@@ -37,8 +42,8 @@ exports.moderateListing = onCall({ region: REGION }, wrapCallable(async request 
     if (!snapshot.exists) throw new HttpsError('not-found', 'Listing not found.')
 
     const listing = snapshot.data()
-    if (listing.status !== 'pending') {
-      throw new HttpsError('failed-precondition', 'Only pending listings can be moderated.')
+    if (!transitionsByStatus[listing.status]?.has(status)) {
+      throw new HttpsError('failed-precondition', 'This listing cannot be moderated into that status.')
     }
 
     const moderation = {

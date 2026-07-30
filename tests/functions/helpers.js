@@ -3,9 +3,9 @@ import firebaseLib from '../../functions/lib/firebase.js'
 
 const { auth } = firebaseLib
 
-export async function createAuthUser({ admin = false, emailVerified = true } = {}) {
+export async function createAuthUser({ admin = false, email: emailOverride, emailVerified = true } = {}) {
   const uid = `uid-${randomUUID()}`
-  const email = `${uid}@example.com`
+  const email = emailOverride || `${uid}@example.com`
   await auth.createUser({ uid, email, emailVerified })
   if (admin) await auth.setCustomUserClaims(uid, { admin: true })
   return { uid, email }

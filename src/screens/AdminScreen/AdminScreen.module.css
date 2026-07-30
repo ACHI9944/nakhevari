@@ -128,7 +128,8 @@
   font-weight: 600;
 }
 
-.maintenance {
+.maintenance,
+.statsPanel {
   display: grid;
   gap: 16px;
   margin-bottom: 24px;
@@ -325,6 +326,11 @@
 .badgeDraft {
   background: var(--color-brand-soft);
   color: var(--color-brand);
+}
+
+.badgeUnpublished {
+  background: var(--color-page-muted);
+  color: var(--color-text-muted);
 }
 
 .reviewPanel {
@@ -577,7 +583,7 @@
   }
 
   .tabs {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .statusGrid {

@@ -255,6 +255,61 @@ export async function createListing(data, user, photos = [], profile = null) {
   }
 }
 
+export async function updateListing(listingId, data, user, photoChanges = {}, profile = null) {
+  const { keepPhotos = [], newPhotoFiles = [], removedPaths = [] } = photoChanges
+  const reference = doc(db, 'listings', listingId)
+  const uploadedPhotos = []
+  const isVerifiedCompany = profile?.accountType === 'company'
+    && profile.companyVerificationStatus === 'verified'
+  const { price, sellerName, phone, ...publicFields } = data
+
+  try {
+    const uploads = await Promise.allSettled(newPhotoFiles.map(async (file, index) => {
+      const photoRef = ref(storage, `listing-images/${user.uid}/${listingId}/${keepPhotos.length + index}-${crypto.randomUUID()}.${photoExtension(file)}`)
+      await uploadBytes(photoRef, file, { contentType: file.type })
+      uploadedPhotos[index] = {
+        url: await getDownloadURL(photoRef),
+        path: photoRef.fullPath,
+      }
+    }))
+    const failedUpload = uploads.find(result => result.status === 'rejected')
+    if (failedUpload) throw failedUpload.reason
+
+    const allPhotos = [...keepPhotos, ...uploadedPhotos]
+
+    const publicPayload = {
+      ...publicFields,
+      year: Number(data.year),
+      mileage: Number(data.mileage),
+      status: 'pending',
+      image: allPhotos[0].url,
+      images: allPhotos.map(photo => photo.url),
+      imagePath: allPhotos[0].path,
+      imagePaths: allPhotos.map(photo => photo.path),
+      updatedAt: serverTimestamp(),
+    }
+    Object.assign(publicPayload, buildListingSearchFields(publicPayload))
+
+    const sellerInfoPayload = {
+      sellerName,
+      phone,
+      sellerPrice: Number(price),
+      updatedAt: serverTimestamp(),
+      ...(isVerifiedCompany ? { companyName: profile.companyName || '', companyVerificationStatus: 'verified' } : {}),
+    }
+
+    const batch = writeBatch(db)
+    batch.update(reference, publicPayload)
+    batch.update(doc(reference, 'private', 'sellerInfo'), sellerInfoPayload)
+    await batch.commit()
+
+    await Promise.allSettled(removedPaths.map(path => deleteObject(ref(storage, path))))
+  } catch (error) {
+    await Promise.allSettled(uploadedPhotos.map(photo => photo && deleteObject(ref(storage, photo.path))))
+    throw error
+  }
+}
+
 async function withSellerInfo(listings) {
   const snapshots = await Promise.all(
     listings.map(listing => getDoc(doc(db, 'listings', listing.id, 'private', 'sellerInfo'))),
@@ -366,6 +421,15 @@ export async function getListingById(listingId) {
   if (!snapshot.exists()) return null
   const listing = mapListing(snapshot)
   return listing.status === 'published' ? listing : null
+}
+
+export async function getOwnListingById(listingId, uid) {
+  const snapshot = await getDoc(doc(db, 'listings', listingId))
+  if (!snapshot.exists()) return null
+  const listing = mapListing(snapshot)
+  if (listing.ownerId !== uid) return null
+  const [withInfo] = await withSellerInfo([listing])
+  return { ...withInfo, price: withInfo.sellerPrice }
 }
 
 export async function removeListing(listingId) {

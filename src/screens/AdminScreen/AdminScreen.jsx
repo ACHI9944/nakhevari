@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { DatabaseZap, ShieldCheck } from 'lucide-react'
-import { Button, Footer, Header } from '../../components'
+import { Button, ConfirmModal, Footer, Header } from '../../components'
 import { backfillListingSearchFields } from '../../services/listings/listingSearchMaintenanceService'
 import {
   changeAdminAccess,
+  changeListingPrice,
   changeUserStatus,
   fetchAdminListings,
   fetchAdmins,
   fetchAdminStats,
   fetchProfiles,
+  removeListingAdmin,
   reviewListing,
   verifyCompany,
 } from '../../store/adminListingsSlice'
@@ -56,9 +58,11 @@ export function AdminPage() {
   const [selectedUserId, setSelectedUserId] = useState(null)
   const [rejectionReason, setRejectionReason] = useState('')
   const [publicPrice, setPublicPrice] = useState('')
+  const [deleteReason, setDeleteReason] = useState('')
   const [companyReason, setCompanyReason] = useState('')
   const [userStatusReason, setUserStatusReason] = useState('')
   const [adminEmail, setAdminEmail] = useState('')
+  const [adminConfirm, setAdminConfirm] = useState(null)
   const [maintenanceCursor, setMaintenanceCursor] = useState('')
   const [maintenanceLoading, setMaintenanceLoading] = useState(false)
   const [maintenanceResult, setMaintenanceResult] = useState(null)
@@ -115,7 +119,34 @@ export function AdminPage() {
     }
   }
 
-  const updateAdmin = async (email, enabled) => {
+  const updatePrice = async () => {
+    if (!selected || !(Number(publicPrice) > 0)) return
+    try {
+      await dispatch(changeListingPrice({ listingId: selected.id, publicPrice })).unwrap()
+      setPublicPrice('')
+    } catch {
+      // The slice exposes the callable error in the dashboard.
+    }
+  }
+
+  const deleteSelectedListing = async () => {
+    if (!selected || !deleteReason.trim()) return
+    if (!window.confirm(t('admin.deleteConfirm'))) return
+    try {
+      await dispatch(removeListingAdmin({ listingId: selected.id, reason: deleteReason })).unwrap()
+      setDeleteReason('')
+      setSelectedId(null)
+    } catch {
+      // The slice exposes the callable error in the dashboard.
+    }
+  }
+
+  const requestAdminUpdate = (email, enabled) => setAdminConfirm({ email, enabled })
+
+  const confirmAdminUpdate = async () => {
+    if (!adminConfirm) return
+    const { email, enabled } = adminConfirm
+    setAdminConfirm(null)
     try {
       await dispatch(changeAdminAccess({ email, enabled })).unwrap()
       if (enabled) setAdminEmail('')
@@ -159,7 +190,9 @@ export function AdminPage() {
   const selectListing = id => {
     setSelectedId(id)
     setRejectionReason('')
-    setPublicPrice('')
+    setDeleteReason('')
+    const listing = items.find(item => item.id === id)
+    setPublicPrice(listing?.publicPrice ? String(listing.publicPrice) : '')
   }
 
   const selectCompany = uid => {
@@ -206,49 +239,57 @@ export function AdminPage() {
             <span className={styles.secure}><ShieldCheck size={17} />{t('admin.secure')}</span>
           </div>
 
-          <AdminStatsOverview loading={statsStatus === 'idle' || statsStatus === 'loading'} stats={stats} t={t} />
-
           <AdminTabs activeTab={activeTab} onChange={changeTab} t={t} />
           <AdminSearch activeTab={activeTab} onChange={setSearch} search={search} t={t} />
           {actionError && <p className={styles.error}>{t('admin.error')}</p>}
 
-          <section className={styles.maintenance}>
-            <div>
-              <h2 className={styles.maintenanceTitle}><DatabaseZap size={18} /> {t('admin.maintenanceTitle')}</h2>
-              <p className={styles.maintenanceText}>{t('admin.maintenanceText')}</p>
-              {maintenanceResult && (
-                <p className={styles.maintenanceMeta}>
-                  {t('admin.maintenanceResult', {
-                    changed: maintenanceResult.changed,
-                    checked: maintenanceResult.checked,
-                  })}
-                  {maintenanceResult.nextCursor ? ` ${t('admin.maintenanceMore')}` : ''}
-                </p>
-              )}
-              {maintenanceError && <p className={styles.maintenanceError}>{maintenanceError}</p>}
-            </div>
-            <div className={styles.maintenanceActions}>
-              <Button type="button" variant="outline" onClick={() => runSearchBackfill(true)} disabled={maintenanceLoading}>
-                {maintenanceLoading ? t('common.loading') : t('admin.maintenanceDryRun')}
-              </Button>
-              <Button type="button" onClick={() => runSearchBackfill(false)} disabled={maintenanceLoading}>
-                {maintenanceLoading ? t('common.loading') : t('admin.maintenanceApply')}
-              </Button>
-            </div>
-          </section>
+          {activeTab === 'listings' && (
+            <section className={styles.maintenance}>
+              <div>
+                <h2 className={styles.maintenanceTitle}><DatabaseZap size={18} /> {t('admin.maintenanceTitle')}</h2>
+                <p className={styles.maintenanceText}>{t('admin.maintenanceText')}</p>
+                {maintenanceResult && (
+                  <p className={styles.maintenanceMeta}>
+                    {t('admin.maintenanceResult', {
+                      changed: maintenanceResult.changed,
+                      checked: maintenanceResult.checked,
+                    })}
+                    {maintenanceResult.nextCursor ? ` ${t('admin.maintenanceMore')}` : ''}
+                  </p>
+                )}
+                {maintenanceError && <p className={styles.maintenanceError}>{maintenanceError}</p>}
+              </div>
+              <div className={styles.maintenanceActions}>
+                <Button type="button" variant="outline" onClick={() => runSearchBackfill(true)} disabled={maintenanceLoading}>
+                  {maintenanceLoading ? t('common.loading') : t('admin.maintenanceDryRun')}
+                </Button>
+                <Button type="button" onClick={() => runSearchBackfill(false)} disabled={maintenanceLoading}>
+                  {maintenanceLoading ? t('common.loading') : t('admin.maintenanceApply')}
+                </Button>
+              </div>
+            </section>
+          )}
+
+          {activeTab === 'stats' && (
+            <AdminStatsOverview loading={statsStatus === 'idle' || statsStatus === 'loading'} stats={stats} t={t} />
+          )}
 
           {activeTab === 'listings' && (
             <ListingsModerationTab
               acting={acting}
+              deleteReason={deleteReason}
               error={listingsError}
               filter={filter}
               listingCounts={listingCounts}
               loading={loadingListings}
+              onDeleteListing={deleteSelectedListing}
+              onDeleteReasonChange={setDeleteReason}
               onFilterChange={changeListingFilter}
               onModerate={moderate}
               onPublicPriceChange={setPublicPrice}
               onRejectionReasonChange={setRejectionReason}
               onSelect={selectListing}
+              onUpdatePrice={updatePrice}
               publicPrice={publicPrice}
               rejectionReason={rejectionReason}
               selected={selected}
@@ -297,12 +338,23 @@ export function AdminPage() {
               currentUserId={user.uid}
               error={adminsError}
               onAdminEmailChange={setAdminEmail}
-              onUpdateAdmin={updateAdmin}
+              onUpdateAdmin={requestAdminUpdate}
               t={t}
             />
           )}
         </div>
       </main>
+      <ConfirmModal
+        open={Boolean(adminConfirm)}
+        title={adminConfirm
+          ? (adminConfirm.enabled
+              ? t('admin.admins.addConfirm', { email: adminConfirm.email })
+              : t('admin.admins.removeConfirm', { email: adminConfirm.email }))
+          : ''}
+        danger={Boolean(adminConfirm && !adminConfirm.enabled)}
+        onConfirm={confirmAdminUpdate}
+        onCancel={() => setAdminConfirm(null)}
+      />
       <Footer />
     </>
   )

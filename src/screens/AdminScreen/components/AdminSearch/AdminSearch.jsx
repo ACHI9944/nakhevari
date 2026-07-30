@@ -2,7 +2,7 @@ import { Search } from 'lucide-react'
 import styles from '../../AdminScreen.module.css'
 
 export function AdminSearch({ activeTab, onChange, search, t }) {
-  if (activeTab === 'admins') return null
+  if (activeTab === 'admins' || activeTab === 'stats') return null
 
   return (
     <label className={styles.search}>
